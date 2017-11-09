@@ -24,7 +24,7 @@ export const IS_DEV = process.env.NODE_ENV !== "production"
 
 export const SERVER_URL = IS_DEV
   ? "https://rad.ngrok.io/"
-  : "https://rad.wtf"
+  : "https://rad.wtf/feedback-rtc/"
 
 export const IS_MOBILE = !Detector.isDesktop
 export const IS_DESKTOP = Detector.isDesktop
