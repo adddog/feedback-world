@@ -85,6 +85,7 @@
   },
   "scripts": {
     "start": "NODE_ENV=development ejs-cli src/index.ejs > index.html && NODE_ENV=development concurrently \"budo index.js:bundle.js --host 0.0.0.0 --ssl -C sslcerts/local_cert.pem -K sslcerts/local_key.pem --cors --live --serve bundle.js -- -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] -t envify\" \"postcss src/postcss/index.sss -o main.css -m -w\"",
+    "build:stage": "concurrently \"browserify index.js -t [ envify --NODE_ENV stage ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
     "build": "concurrently \"browserify index.js -t [ envify --NODE_ENV production ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" "
   },
   "false": {}

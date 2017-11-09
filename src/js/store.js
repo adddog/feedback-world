@@ -218,9 +218,7 @@ function store(state, emitter) {
 
   Socket.emitter = emitter
 
-  if (IS_DEV) {
-    Socket.socket = io(SERVER_URL)
-  }
+  Socket.socket = io(SERVER_URL)
 
   const webrtc = WebRTC(state, emitter)
 }
