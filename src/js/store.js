@@ -1,3 +1,4 @@
+import observable from "proxy-observable"
 import QS from "query-string"
 import uuid from "uuid"
 import io from "socket.io-client"
@@ -23,7 +24,7 @@ import Socket from "./socket"
 import Desktop from "./desktop"
 import Mobile from "./mobile"
 
-const WebRTC = (state, emitter) => {
+const WebRTC = (store, emitter) => {
   function init() {
     logSuccess("First load")
 
@@ -50,7 +51,7 @@ const WebRTC = (state, emitter) => {
         localVideoEl: "localVideo",
         remoteVideosEl: "remoteVideos",
         media: {
-          video: state.useWebcam
+          video: store.useWebcam
             ? Detector.isDesktop
               ? noCamera ? false : { ...videoSettings }
               : noCamera
@@ -72,8 +73,8 @@ const WebRTC = (state, emitter) => {
       { mirror: false }
     )
 
-    const desktop = Desktop(webrtc, state, emitter)
-    const mobile = Mobile(webrtc, state, emitter)
+    const desktop = Desktop(webrtc, store, emitter)
+    const mobile = Mobile(webrtc, store, emitter)
 
     webrtc.on("disconnect", function(evt) {
       console.log("Webrtc:disconnect")
@@ -88,8 +89,8 @@ const WebRTC = (state, emitter) => {
     })
 
     webrtc.on("readyToCall", function() {
-      //logInfo(`Joining room ${state.room.id}`)
-      //emitter.emit("webrtc:connect", { roomId: state.room.id })
+      //logInfo(`Joining room ${store.room.id}`)
+      //emitter.emit("webrtc:connect", { roomId: store.room.id })
     })
 
     /*webrtc.on("localStream", function(stream) {})
@@ -106,7 +107,7 @@ const WebRTC = (state, emitter) => {
 */
 
     const leaveRoom = roomId => {
-      Socket.emit("room:leave", { roomId: state.room.id })
+      Socket.emit("room:leave", { roomId: store.room.id })
       webrtc.leaveRoom()
     }
 
@@ -150,7 +151,7 @@ const WebRTC = (state, emitter) => {
       if (Gui.started) return
       Gui.started = true
     })
-    emitter.emit("webrtc:connect", { roomId: state.room.id })
+    emitter.emit("webrtc:connect", { roomId: store.room.id })
   }
 
   emitter.once("view:room:onload", () => {
@@ -160,30 +161,30 @@ const WebRTC = (state, emitter) => {
   //return webrtc
 }
 
-module.exports = store
-
 function store(state, emitter) {
-  state.randomRoomId = QS.parse(location.search).room
+  state.store = observable({
+    randomRoomId: QS.parse(location.search).room,
 
-  state.useWebcam = Detector.isMobile ? true : false
+    useWebcam: Detector.isMobile ? true : false,
 
-  state.room = {
-    created: false,
-    id: "",
-    recording: false,
-  }
-
-  Gui.state = state
-
-  emitter.on("DOMContentLoaded", function() {
-    // CRUD
+    room: {
+      created: false,
+      id: "",
+      recording: false,
+    },
   })
+
+  Gui.state = state.store
+
+  const updateRoom = obj => (state.store.room = { ...state.store.room, ...obj })
+
+  emitter.on("DOMContentLoaded", function() {})
 
   emitter.on("set:roomId", v => {
-    state.randomRoomId = v
+    state.store.randomRoomId = v
   })
   emitter.on("room:change", v => {
-    state.room.id = v
+    updateRoom({ id: v })
     //emitter.emit("render")
   })
 
@@ -195,32 +196,29 @@ function store(state, emitter) {
     state.socket = Socket(s.connection)
     logInfo("Set socket")
   })*/
-
   emitter.on("room:create", roomId => {
-    state.room.id = roomId
-    if (state.room.created) {
+    updateRoom({ id: roomId})
+    if (state.store.room.created) {
       emitter.emit("webrtc:connect", { roomId: roomId })
     } else {
+      updateRoom({ created: true })
       emitter.emit("render")
     }
-    state.room.created = true
   })
 
   emitter.on("room:create:input", v => {
-    state.room.id = v
-    emitter.emit("render")
+    updateRoom({ id: v })
   })
 
   Server.roomId().then(({ roomId }) => {
-    state.randomRoomId = state.randomRoomId || roomId
-    emitter.emit("render")
+    state.store.randomRoomId = state.store.randomRoomId || roomId
   })
 
   Socket.emitter = emitter
 
   Socket.socket = io(SERVER_URL)
 
-  const webrtc = WebRTC(state, emitter)
+  const webrtc = WebRTC(state.store, emitter)
 }
 
-export default WebRTC
+module.exports = store

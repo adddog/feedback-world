@@ -3,13 +3,12 @@ var html = require("bel")
 import { isObject } from "lodash"
 
 class InnerComponent extends Nanocomponent {
-
   createElement(text) {
     this.text = text
     return this.text
   }
 
-  update(text){
+  update(text) {
     this.text = text
     return true
   }
@@ -22,11 +21,13 @@ class Component extends Nanocomponent {
   }
 
   createElement(text, classes = "", cb = {}) {
+    this._cb = this._cb
     if (isObject(classes)) {
       this._cb = classes
     } else {
       this._cb = cb
     }
+    console.log(this._cb);
     this.classes = classes
     this.text = text
     return html`
@@ -43,13 +44,15 @@ class Component extends Nanocomponent {
 
   load(el) {
     if (this._cb.onload) {
-      this._cb.onload()
-      this._cb = null
+      this._cb.onload(this.element)
     }
   }
 
   unload() {
-    console.log("Not in dom")
+      if (this._cb.unload) {
+        this._cb.unload()
+        this._cb = null
+      }
   }
 }
 

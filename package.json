@@ -37,6 +37,7 @@
     "icosphere": "^1.0.0",
     "intrinsic-scale": "^3.0.3",
     "lodash": "^4.17.4",
+    "mouse-change": "^1.4.0",
     "msr": "^1.3.4",
     "nanocomponent": "^6.4.2",
     "ndarray": "^1.0.18",
@@ -77,16 +78,21 @@
     "estraverse": "^4.2.0",
     "normalize.css": "^7.0.0",
     "postcss-cli": "^4.1.1",
+    "postcss-image-inliner": "^1.0.6",
     "postcss-import": "^11.0.0",
     "postcss-nested": "^2.1.2",
     "postcss-simple-vars": "^4.1.0",
+    "postcss-smart-import": "^0.7.5",
     "sugarss": "^1.0.1",
     "uglify-es": "^3.1.8"
   },
   "scripts": {
+    "prestart": "concurrently \"npm run process:images\" ",
     "start": "NODE_ENV=development ejs-cli src/index.ejs > index.html && NODE_ENV=development concurrently \"budo index.js:bundle.js --host 0.0.0.0 --ssl -C sslcerts/local_cert.pem -K sslcerts/local_key.pem --cors --live --serve bundle.js -- -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] -t envify\" \"postcss src/postcss/index.sss -o main.css -m -w\"",
-    "build:stage": "concurrently \"browserify index.js -t [ envify --NODE_ENV stage ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
-    "build": "concurrently \"browserify index.js -t [ envify --NODE_ENV production ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" "
+    "start:stage": "NODE_ENV=stage ejs-cli src/index.ejs > index.html && NODE_ENV=stage concurrently \"budo index.js:bundle.js --host 0.0.0.0 --ssl -C sslcerts/local_cert.pem -K sslcerts/local_key.pem --cors --live --serve bundle.js -- -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] -t envify\" \"postcss src/postcss/index.sss -o main.css -m -w\"",
+    "build:stage": "concurrently \"npm run process:images\" \"browserify index.js -t [ envify --NODE_ENV stage ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
+    "build": "concurrently \"npm run process:images\" \"browserify index.js -t [ envify --NODE_ENV production ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
+    "process:images": "chmod +x bin/compress_images.sh && ./bin/compress_images.sh"
   },
   "false": {}
 }

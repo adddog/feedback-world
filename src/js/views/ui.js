@@ -3,14 +3,17 @@ import Component from "../common/component"
 import Gui from "../common/gui"
 import { IS_MOBILE } from "../common"
 
-module.exports = (state, emit, emitter) => {
-  if (!state.room.created) return null
+module.exports = ({store}, emit, emitter) => {
+  if (!store.room.created) return null
 
   const tree = new Component()
 
   const getHTML = room => html`
     <section class="u-full">
-      <h1 class="room--title" >In room ${room.id}</h1>
+      <div class="ui-header">
+        <h1 class="room--title" >In room ${room.id}</h1>
+      </div>
+      <div class="ui-rooms"></div>
     </section>
   `
 
@@ -23,7 +26,7 @@ module.exports = (state, emit, emitter) => {
     tree.rerender()
   })
 
-  return tree.render(getHTML(state.room), "u-full RoomUi", {
+  return tree.render(getHTML(store.room), "u-full RoomUi", {
     onload: () => {},
   })
 }

@@ -1,5 +1,5 @@
 import observable from "proxy-observable"
-import { IS_DEV } from "./index"
+import { IS_DEV,IS_PROD } from "./index"
 import Server from "./server"
 const dat = require("dat.gui/build/dat.gui.js")
 
@@ -55,7 +55,7 @@ const o = observable({
   },
 })
 
-if(IS_DEV){
+if(!IS_PROD){
   const gui = new dat.GUI()
   gui.add(o, "tolerance", 0, 1)
   gui.add(o, "slope", 0, 1)

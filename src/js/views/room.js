@@ -2,10 +2,10 @@ import html from "choo/html"
 import Component from "../common/component"
 import { IS_MOBILE } from "../common"
 
-module.exports = (state, emit) => {
+module.exports = ({store}, emit) => {
   emit("log:debug", "Rendering Room")
 
-  if (!state.room.created) return null
+  if (!store.room.created) return null
 
   const renderCanvas = () =>
     IS_MOBILE
