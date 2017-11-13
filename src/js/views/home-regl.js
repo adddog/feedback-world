@@ -223,7 +223,7 @@ vec2 rotate(vec2 st, float a){
   })
 
   function destroy() {
-    console.log("ULOAD")
+    console.log("destroy")
     regl.destroy()
   }
 

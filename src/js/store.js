@@ -209,6 +209,7 @@ function store(state, emitter) {
   })
 
   emitter.on("room:create:input", v => {
+    console.log(v);
     updateRoom({ id: v })
   })
 

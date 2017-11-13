@@ -27,6 +27,8 @@ module.exports = ({store}, emit, emitter) => {
   })
 
   emitter.on("room:change", v => {
+    console.log("----");
+    console.log(v);
     tree.update(getHTML({ id: v }))
     tree.rerender()
   })

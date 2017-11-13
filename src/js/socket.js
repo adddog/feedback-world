@@ -66,5 +66,10 @@ class Socket {
       roomId: roomId,
     })
   }
+
+  shareThumbnail(data){
+    console.log(data);
+    this.emit("room:thumbnail", data)
+  }
 }
 export default new Socket()

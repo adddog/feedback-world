@@ -4,12 +4,15 @@ import HomeRegl from "./home-regl"
 import { IS_DESKTOP, WIDTH, HEIGHT } from "../common"
 var bel = require("bel")
 
-const renderText = ()=> IS_DESKTOP ? html`<div class="home-instruction">If you know your phone's room number, enter it. <br> Or make your own room; pre-filled below</div>` : html``
+const renderText = ()=> IS_DESKTOP ? html`<div class="home-instruction">If you know your phone's 'room' number, enter it. <br> Or make your own room; pre-filled below</div>` : html``
 
 module.exports = ({ store }, emit) => {
-  emit("log:debug", "Rendering home view")
 
-  if (store.room.created) return null
+  emit("log:debug", "Rendering home view", `created room? ${store.room.created}`)
+
+  console.log(`created room? ${store.room.created}`);
+
+  if (store.room.created) return html``
 
   const createRoomInput = e => {
     var value = e.target.value
@@ -41,13 +44,13 @@ module.exports = ({ store }, emit) => {
     ${renderText()}
     <input
         class="u-input"
-        value=${store.room.id}
+        value=${data.id || store.room.id}
         autofocus
         onkeyup=${createRoomInput}
-        placeholder="${data.randomRoomId || store.randomRoomId}"/>
-        <div class="u-wide u-center">
-        <button class="ui-button" onclick=${joinRoom}>
-        join ${data.randomRoomId || store.room.id || store.randomRoomId}
+        />
+    <div class="u-wide u-center">
+      <button class="ui-button" onclick=${joinRoom}>
+        join ${data.randomRoomId || data.id || store.randomRoomId}
       </button>
       </div>
   </div>
@@ -70,12 +73,12 @@ module.exports = ({ store }, emit) => {
   </section>
   `
 
-  store.on("room", v => inputs.render(inputHTML()))
-  store.on("randomRoomId", v => {
-    console.log(v);
+  //store.on("room", v => inputs.render(inputHTML(v)))
+
+  /*store.on("randomRoomId", v => {
     inputs.render(inputHTML({randomRoomId:v}))
 
-  })
+  })*/
 
   let regl
   function startGfx(el) {
@@ -84,6 +87,8 @@ module.exports = ({ store }, emit) => {
   function stopGfx() {
     regl.destroy()
   }
+
+  console.log("IS_DESKTOP",IS_DESKTOP);
 
   return tree.render(
     treeHTML(),

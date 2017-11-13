@@ -84,6 +84,7 @@ const Desktop = (webrtc, state, emitter) => {
 
   const roomEl = document.body.querySelector(".room")
   const canvasEl = document.getElementById("c_output")
+  const canvasCtx = canvasEl.getContext("2d")
   canvasEl.width = WIDTH
   canvasEl.height = HEIGHT
 
@@ -629,6 +630,11 @@ const Desktop = (webrtc, state, emitter) => {
 
   addListeners()
   createCanvasStream()
+  setInterval(() => {
+    /*Socket.shareThumbnail(
+      canvasCtx.getImageData(WIDTH / 2 - 20, HEIGHT / 2 - 20, 40, 40)
+    )*/
+  }, 5000)
 
   return {
     addListeners,
