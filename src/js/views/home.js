@@ -4,10 +4,10 @@ import HomeRegl from "./home-regl"
 import { IS_DESKTOP, WIDTH, HEIGHT } from "../common"
 var bel = require("bel")
 
+const renderText = ()=> IS_DESKTOP ? html`<div class="home-instruction">If you know your phone's room number, enter it. <br> Or make your own room; pre-filled below</div>` : html``
+
 module.exports = ({ store }, emit) => {
   emit("log:debug", "Rendering home view")
-
-  console.log(store.room)
 
   if (store.room.created) return null
 
@@ -35,17 +35,25 @@ module.exports = ({ store }, emit) => {
 
   const tree = new Component()
   const inputs = new Component()
-
-  const inputHTML = () => html`
+  const inputHTML = (data = {}) => html`
   <div>
+    <div class="home-title"></div>
+    ${renderText()}
     <input
+        class="u-input"
         value=${store.room.id}
         autofocus
         onkeyup=${createRoomInput}
-        placeholder="room name"/>
+        placeholder="${data.randomRoomId || store.randomRoomId}"/>
+        <div class="u-wide u-center">
         <button class="ui-button" onclick=${joinRoom}>
-        join ${store.room.id}
+        join ${data.randomRoomId || store.room.id || store.randomRoomId}
       </button>
+      </div>
+  </div>
+      `
+
+      /*
       <div><span>use webcam</span><input label="use webcam" checked=${store.useWebcam
         ? "checked"
         : "false"}  type="checkbox" onchange=${changeCheckbox}></div>
@@ -53,8 +61,7 @@ module.exports = ({ store }, emit) => {
        <button class="ui-button" onclick=${createRoom} >
         create
       </button>
-  </div>
-      `
+      */
 
   const treeHTML = () => html`
     <section>
@@ -64,6 +71,11 @@ module.exports = ({ store }, emit) => {
   `
 
   store.on("room", v => inputs.render(inputHTML()))
+  store.on("randomRoomId", v => {
+    console.log(v);
+    inputs.render(inputHTML({randomRoomId:v}))
+
+  })
 
   let regl
   function startGfx(el) {

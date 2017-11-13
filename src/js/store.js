@@ -178,7 +178,9 @@ function store(state, emitter) {
 
   const updateRoom = obj => (state.store.room = { ...state.store.room, ...obj })
 
-  emitter.on("DOMContentLoaded", function() {})
+  emitter.on("DOMContentLoaded", function() {
+
+  })
 
   emitter.on("set:roomId", v => {
     state.store.randomRoomId = v
@@ -210,15 +212,16 @@ function store(state, emitter) {
     updateRoom({ id: v })
   })
 
-  Server.roomId().then(({ roomId }) => {
-    state.store.randomRoomId = state.store.randomRoomId || roomId
-  })
 
   Socket.emitter = emitter
 
   Socket.socket = io(SERVER_URL)
 
   const webrtc = WebRTC(state.store, emitter)
+
+  Server.roomId().then(({ roomId }) => {
+    state.store.randomRoomId = state.store.randomRoomId || roomId
+  })
 }
 
 module.exports = store

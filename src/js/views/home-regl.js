@@ -28,12 +28,16 @@ const REGL = el => {
   const drawFeedback = regl({
     frag: `
 
+    #define PI 3.14159265359;
     #define TAU 6.28318530718;
+    #define MOIRE 100.;
+    #define amount 8.0;
 
   precision lowp float;
   uniform sampler2D texture;
   uniform vec2 mouse;
   uniform vec2 mouseN;
+  uniform vec2 circleAndTime;
   uniform float t;
   uniform float aspect;
   varying vec2 uv;
@@ -56,6 +60,26 @@ const REGL = el => {
     return 1.-step(size,x);
   }
 
+  //15
+  float triSDF(vec2 st){
+    st = (st *2.-1.)*2.;
+    return max(abs(st.x)* 0.866025 + st.y * 0.5, -st.y * 0.5);
+  }
+
+  //17
+float rhombSDF(vec2 st){
+  return max(triSDF(st),
+     triSDF(vec2(st.x,1.-st.y))
+     );
+}
+
+//19
+vec2 rotate(vec2 st, float a){
+  st = mat2(cos(a), -sin(a), sin(a), cos(a)) * (st-.5);
+  return st+.5;
+}
+
+
   float starSDF(vec2 st, int V, float s){
     st= st *4.-2.;
     float a= atan(st.y, st.x)/TAU;
@@ -76,36 +100,79 @@ const REGL = el => {
 
   void main () {
     vec2 st = uv;
+    st.x*=aspect;
+    st.x-= max((aspect-1.)/2.,0.);
     float dist = length(gl_FragCoord.xy - mouse);
+    float distCenter = length(vec2(0.5, 0.5) - mouseN);
     st.x *= 2.;
-    st.x -= mouseN.x;
+    st.x -= circleAndTime.x;
     st.y *= 2.;
-    st.y -= mouseN.y;
+    st.y -= circleAndTime.y;
     //st.x *= aspect;
     //st.y *= aspect;
-    float color1 = 0.;
-    //color += stroke(circleSDF(st), mouseN.x/mouseN.y, abs(sin(mouseN.y)*0.05));
-    color1 += step(0.5,spiralSDF(st,mouseN.x/mouseN.y*.13));
-    float color2 = 0.;
-    color2 += fill(circleSDF(st),.65);
-    vec2 offset = vec2(.1,.05);
-    color2 += fill(circleSDF(st-offset),.5);
+    vec2 mouseSt = circleAndTime;
 
-    float color = mix(color1,color2, abs(sin(t)));
+    vec4 acidColor = exp(-0.01 * dist) * vec4(
+        1.0 + cos(2.0 * t),
+        1.0 + cos(2.0 * t + 1.5),
+        1.0 + cos(2.0 * t + 3.0),
+        0.0);
+    float color1 = 0.2;
+
+    //## pixelate
+  float d = 1.0 / amount;
+  float ar = gl_FragCoord.x / gl_FragCoord.y;
+  float u = floor( uv.x / d ) * d;
+  d = ar / amount;
+  float v = floor( uv.y / d ) * d;
+  vec4 pixelate = texture2D( texture, vec2( u, v ) );
+
+  vec2 moireSt = st * 0.2;
+  moireSt -= .1;
+  float r = dot(moireSt,moireSt);
+  float a = atan(moireSt.y,moireSt.x) / PI;
+  vec2 truthUV = vec2(r,a);
+  float _m = MOIRE;
+  vec2 grid = vec2(_m * distCenter ,log(r)*(_m + 20.) * distCenter);
+  vec2 truthUV_i = floor(grid * truthUV);
+  truthUV.x += .5*mod(truthUV_i.y,2.0);
+  vec2 truthUV_f = fract(truthUV*grid);
+  float shape = rhombSDF(truthUV_f);
+  color1 += fill(shape, .8)*step(.5,1.-r);
+
+  color1 += 0.4;
+
+
+
+    //color += stroke(circleSDF(st), circleAndTime.x/circleAndTime.y, abs(sin(circleAndTime.y)*0.05));
+    //color1 += step(0.5,spiralSDF(st,mouseSt.x/mouseSt.y*.13));
+
+    float color2 = 0.2;
+    color2 += step(0.5,spiralSDF(st,mouseSt.x/mouseSt.y*.13));
+    // color2 += fill(circleSDF(uv),.65);
+    // vec2 offset = vec2(.1,.05);
+    // color2 += fill(circleSDF(uv-offset),.5);
+
+    vec3 colorMix1 = color1 * acidColor.rgb;
+    vec3 colorMix2 = color2 * (1.-acidColor.rgb);
+
+    float osc = abs(sin(t * 0.1) *0.5+0.5);
+
+    vec3 color = mix(colorMix2,colorMix1, osc);
 
     // float s = starSDF(st.yx, 5, .1);
     // color *= step(.7,s);
     // color += stroke(s, 0.4, .1);
 
-    gl_FragColor = mix(vec4(vec3(color),1.),vec4(0.98 * texture2D(texture,
-      uv + cos(t) * vec2(0.5 - uv.y, uv.x - 0.5) - sin(2.0 * t) * (uv - 0.5)).rgb, 1) +
-      exp(-0.01 * dist) * vec4(
-        1.0 + cos(2.0 * t),
-        1.0 + cos(2.0 * t + 1.5),
-        1.0 + cos(2.0 * t + 3.0),
-        0.0),0.8);
-      //gl_FragColor = vec4(st,0.5,1.);
-      //gl_FragColor = vec4(vec3(dist),1.);
+    vec4 feedback = mix(
+      vec4(color * acidColor.rgb,1.),
+      vec4(0.98 * texture2D(texture,
+      uv + cos(t) * vec2(0.5 - uv.y, uv.x - 0.5) - sin(2.0 * t) * (uv - 0.5)).rgb, 1),
+      osc * 0.5);
+
+    //gl_FragColor = vec4(color * acidColor.rgb,1.);
+    //gl_FragColor = vec4(mouseSt,0.5,1.);
+    gl_FragColor = feedback;
   }`,
 
     vert: `
@@ -127,12 +194,17 @@ const REGL = el => {
         mouse.x * pixelRatio,
         viewportHeight - mouse.y * pixelRatio,
       ],
-      mouseN: ({ viewportHeight, viewportWidth }) => [
-        mouse.x / viewportWidth * 2 -1,
-        mouse.y / viewportHeight *2-1,
+      circleAndTime: ({ tick, viewportHeight, viewportWidth }) => [
+        Math.cos(tick * 0.01) * 0.5 + 0.5,
+        Math.sin(tick * 0.01) * 0.5 + 0.5,
       ],
-      aspect: 1, //scale,
-      t: ({ tick }) => 0.01 * tick,
+      mouseN: ({ viewportHeight, viewportWidth }) => [
+        mouse.x / viewportWidth,
+        mouse.y / viewportHeight,
+      ],
+      aspect: ({ viewportHeight, viewportWidth }) =>
+        viewportWidth / viewportHeight,
+      t: ({ tick }) => tick * 0.01,
     },
 
     count: 3,
@@ -150,13 +222,13 @@ const REGL = el => {
     })
   })
 
-  function destroy(){
-    console.log("ULOAD");
+  function destroy() {
+    console.log("ULOAD")
     regl.destroy()
   }
 
   return {
-    destroy
+    destroy,
   }
 }
 

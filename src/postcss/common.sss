@@ -1,0 +1,35 @@
+$cWhite: #f9f6ed
+$cDark: #222
+$cBlue: #BBDEFB
+$fSmall: 1em
+$fBig: 1.6em
+
+%flex-c
+  display: flex
+  justify-content: center
+  align-items: center
+
+%t-small
+  color: $cWhite
+  letter-spacing: 1px
+  font-size: $fSmall
+
+.u-wide
+  position: relative
+  width: 100%
+
+.u-center
+  @extend %flex-c
+
+.u-input
+  border: 0
+  width: 100%
+  font-size: $fBig
+  line-height: $fBig
+  text-align: center
+  padding: 10px
+  background: transparent
+  color: $cBlue
+
+  &:focus
+    outline: 0

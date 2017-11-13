@@ -1,1 +1,5 @@
 Feedback World
+
+Requirments
+
+pngquant
