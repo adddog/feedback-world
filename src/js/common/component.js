@@ -31,7 +31,6 @@ class Component extends Nanocomponent {
     } else if(!isEmpty(classes)){
       this._cb = cb
     }
-    console.log(this._cb );
     this.classes = classes
     this.text = text
     return html`
@@ -47,15 +46,12 @@ class Component extends Nanocomponent {
   }
 
   load(el) {
-    console.log("Loaded!");
     if (this._cb.onload) {
       this._cb.onload(this.element)
     }
   }
 
   unload() {
-    console.log("Unloading!");
-    console.log(this._cb.unload);
       if (this._cb.unload) {
         this._cb.unload()
         this._cb = null
