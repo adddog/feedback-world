@@ -1,16 +1,18 @@
+%hideTransitionIn
+  transition: transform 0.3s easeInSine 0.3s
+
+%hideTransitionOut
+  transition: transform 0.3s easeOutSine
+
 .ui-header
   position: absolute
   top: 0
   left: 0
   width: 100%
-  display: flex
-  flex-direction: row
-  align-items: flex-start
-  justify-content: space-between
-  transition: transform 0.3s easeOutSine
+  @extend %hideTransitionOut
   font-family: $ffSmall
   &.hide
-    transition: transform 0.3s easeInSine
+    @extend %hideTransitionIn
     transform: translateY(-100%)
   h1
     color: $cWhite
@@ -20,6 +22,12 @@
     span
       font-size: calc($fSmaller / 1.2)
 
+.ui-header-items
+  width: 100%
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+  justify-content: space-between
 
 .ui-footer
   position: absolute
@@ -29,62 +37,22 @@
   display: flex
   justify-content: space-between
   align-items: center
-  transition: transform 0.3s easeOutSine
+  @extend %hideTransitionOut
   &.hide
-    transition: transform 0.3s easeInSine
+    @extend %hideTransitionIn
     transform: translateY(100%)
 
 
-.ui-button
-  cursor: pointer
-  @extend %t-small
-  color: $cDark
-  min-height: 50px
-  min-width: 120px
-  max-width: 120px
-  background-image: url("images/button.png")
-  background-size: contain
-  background-position: 50% 50%
-  background-repeat: no-repeat
-  &:hover
-    filter: LoFi
-
-.ui-record-c
-
-.ui-record
-  cursor: pointer
-  @extend %t-small
-  color: $cDark
-  min-height: 60px
-  min-width: 60px
-  background-image: url("images/record.png")
-  background-size: contain
-  background-position: 50% 50%
-  background-repeat: no-repeat
-  &:hover
-    filter: LoFi
-
-
-.ui-record--micro
-  position: relative
-  &:after
-    position: absolute
-    width: 70%
-    height: 70%
-    content: ''
-    left: 15%
-    top: 15%
-    background-image: url("images/micro.png")
-    background-size: contain
-    background-repeat: no-repeat
-
 .ui-medias
+  position: relative
+  width: auto
   display: flex
   align-items: flex-end
   justify-content: flex-end
 
 .ui-media
   position: relative
+  user-select: none
   cursor: pointer
   padding: 0 10px
   width: 70px
@@ -126,13 +94,14 @@
   display: flex
   align-items: flex-end
   justify-content: flex-end
-  transition: transform 0.3s easeOutSine
+  @extend %hideTransitionOut
   &.hide
-    transition: transform 0.3s easeInSine
+    @extend %hideTransitionIn
     transform: translateY(100%)
 
 .ui-room
   cursor: pointer
+  user-select: none
   position: relative
   width: 70px
   height: 70px
@@ -179,7 +148,8 @@
       transform-origin: 50% 60%
 
 
-.ui-error
+.ui-comms,
+.ui-messages
   position: fixed
   display: flex
   align-items: center
@@ -190,5 +160,131 @@
   height: 100%
   pointer-events: none
   span
-    color: $cError
+    position: relative
+    font-size: $fSmall
+    width: 40%
+    letter-spacing: 1px
+    transform: skew(-16deg)
+
+.ui-messages--error
+  color: $cError
+
+.ui-messages--info
+  color: $cBlue
+
+.ui-comms-items
+  display: flex
+  width: 40%
+  font-size: $fBig
+  flex-direction: column
+  align-items: flex-start
+  justify-content: center
+  span
+    white-space: nowrap
+    margin-bottom: 0.3em
+
+.ui-comm--you
+  font-size: $fBig
+  left: -10px
+  color: $cBlueDark
+
+.ui-comm--remote
+  font-size: $fBig
+  left: 10px
+  color: $cOrange
+
+.ui-button
+  cursor: pointer
+  user-select: none
+  @extend %t-small
+  color: $cDark
+  min-height: 50px
+  min-width: 120px
+  max-width: 120px
+  background-image: url("images/button.png")
+  background-size: contain
+  background-position: 50% 50%
+  background-repeat: no-repeat
+  &:hover
+    filter: LoFi
+
+.ui-record-c
+  display: flex
+  padding-left: 10px
+  justify-content: flex-start
+  align-items: center
+
+.ui-record
+  cursor: pointer
+  user-select: none
+  @extend %t-small
+  color: $cDark
+  min-height: 60px
+  min-width: 60px
+  background-image: url("images/record.png")
+  background-size: contain
+  background-position: 50% 50%
+  background-repeat: no-repeat
+  &:hover
+    filter: LoFi
+
+
+.ui-record--micro
+  position: relative
+  &:after
+    position: absolute
+    width: 70%
+    height: 70%
+    content: ''
+    left: 15%
+    top: 15%
+    background-image: url("images/micro.png")
+    background-position: 50% 50%
+    background-size: contain
+    background-repeat: no-repeat
+  &.active
+    filter: LoFi
+
+.ui-record--render
+  position: relative
+  &:after
+    position: absolute
+    width: 70%
+    height: 70%
+    content: ''
+    left: 15%
+    top: 15%
+    background-image: url("images/render.png")
+    background-position: 50% 50%
+    background-size: contain
+    background-repeat: no-repeat
+  &.hide
+    display: none
+  &.active
+    filter: LoFi
+
+.ui-pixi
+  position: relative
+  width: auto
+  height: auto
+  &-title
+    font-family: $ffSmall
+    font-size: $fSmaller
+    pointer-events: none
+    user-select: none
+    height: $ffSmaller
+  &-labels
+    position: absolute
+    pointer-events: none
+    font-family: $ffSmall
+    height: $ffSmall
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: flex-start
+    span
+      padding-left: 0.1em
+      opacity: 0.6
+      position: relative
+      width: 50%
 

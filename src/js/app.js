@@ -1,5 +1,5 @@
-import Whammy from "./lib/Whammy"
 import { IS_DEV, WIDTH, HEIGHT } from "./common"
+import Whammy from "./lib/Whammy"
 import Adapter from "webrtc-adapter"
 import Model from "./model"
 import { find } from "lodash"

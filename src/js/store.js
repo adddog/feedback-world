@@ -21,6 +21,7 @@ import {
 } from "./common"
 import Server from "./common/server"
 import Socket from "./socket"
+import UI from "./ui"
 import Desktop from "./desktop"
 import Mobile from "./mobile"
 
@@ -75,6 +76,7 @@ const WebRTC = (store, emitter) => {
 
     const desktop = Desktop(webrtc, store, emitter)
     const mobile = Mobile(webrtc, store, emitter)
+    const ui = UI(store, emitter)
 
     webrtc.on("disconnect", function(evt) {
       console.log("Webrtc:disconnect")
@@ -93,19 +95,6 @@ const WebRTC = (store, emitter) => {
       //emitter.emit("webrtc:connect", { roomId: store.room.id })
     })
 
-    /*webrtc.on("localStream", function(stream) {})
-
-  webrtc.on("localMediaError", function(err) {})
-
-  webrtc.on("createdPeer", function(peer) {})
-
-  webrtc.on("localScreenAdded", function(video) {})
-  // local screen removed
-  webrtc.on("localScreenRemoved", function(video) {})
-
-  webrtc.on("handlePeerStreamAdded", function(peer) {})
-*/
-
     const leaveRoom = roomId => {
       Socket.emit("room:leave", { roomId: store.room.id })
       webrtc.leaveRoom()
@@ -119,7 +108,6 @@ const WebRTC = (store, emitter) => {
     }
 
     emitter.on("webrtc:connect", ({ roomId }) => {
-      //webrtc.stopLocalVideo()
       console.log(`webrtc:connect ${roomId}`)
       Socket.emit(
         "rooms:canJoin",
@@ -156,6 +144,9 @@ const WebRTC = (store, emitter) => {
     })
 
     emitter.emit("webrtc:connect", { roomId: store.room.id })
+    emitter.once("view:ui:onload", () => {
+      ui.init()
+    })
   }
 
   emitter.once("view:room:onload", () => {
@@ -197,10 +188,6 @@ function store(state, emitter) {
     state.useWebcam = v
   })
 
-  /*emitter.on("set:socket", s => {
-    state.socket = Socket(s.connection)
-    logInfo("Set socket")
-  })*/
   emitter.on("room:create", roomId => {
     if (state.store.room.created) {
       emitter.emit("webrtc:connect", { roomId: state.store.room.id })

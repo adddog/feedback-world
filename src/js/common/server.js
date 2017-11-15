@@ -1,9 +1,9 @@
 import "whatwg-fetch"
 import fetchJsonp from "fetch-jsonp"
-import { IS_DEV, SERVER_URL } from "./index"
+import { IS_DEV, WIDTH, SERVER_URL } from "../common"
 import AuthService from "./auth"
-
-const PATH = IS_DEV ? "" : "feedback-rtc/"
+const PATH =
+  process.env.NODE_ENV === "development" ? "" : "feedback-rtc/"
 
 const Server = (() => {
   function upload(blob) {
@@ -51,7 +51,6 @@ oReq.send(blob);
       })
   }
 
-
   window.instagramCallback = data => data
 
   const DEFAULT_ENDPOINT = "users"
@@ -69,7 +68,7 @@ oReq.send(blob);
         {
           jsonpCallbackFunction: "instagramCallback",
         }
-      ).then(response=> {
+      ).then(response => {
         return response.json()
       })
     })

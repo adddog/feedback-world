@@ -1,25 +1,49 @@
 import html from "choo/html"
 import Component from "../common/component"
 import Gui from "../common/gui"
+import AppEmitter from "../common/emitter"
 import { IS_MOBILE } from "../common"
 
 module.exports = ({ store }, emit, emitter) => {
   if (!store.room.created) return null
 
   const tree = new Component()
+  const header = new Component()
+  const messages = new Component()
+  const comms = new Component()
 
-  const getHTML = data => html`
-    <section class="u-full">
-      <div class="ui-header">
-        <h1><span>in room</span> ${data.id}</h1>
+  const headerHTML = data => html`<div class="ui-header-items">
+    <h1><span>in room</span> ${data.id}</h1>
         <div class="ui-medias">
           <div data-type="webcam" class="ui-media ui-media--webcam"></div>
           <div data-type="insta" class="ui-media ui-media--insta"></div>
         </div>
-      </div>
+      </div>`
+
+  const appMessagesHTML = data =>
+    html`<span class="${data.class || ""}">${data.msg || ""}</span>`
+
+  const commsHTML = data =>
+    html`
+      <div class="ui-comms-items">
+        <span class="ui-comm--you">${data.you}</span>
+        <span class="ui-comm--remote">${data.remote}</span>
+      </div>`
+
+  const getHTML = data => html`
+    <section class="u-full">
+      ${renderHeader()}
       <div class="ui-footer">
         <div class="ui-record-c">
           <div class="ui-record ui-record--micro"></div>
+          <div class="ui-record ui-record--render hide"></div>
+        </div>
+        <div id="pixi" class="ui-pixi">
+          <div class="ui-pixi-title">chroma key mixer</div>
+          <div class="ui-pixi-labels">
+            <span>softness</span>
+            <span>amount</span>
+          </div>
         </div>
         <div class="ui-rooms">
           <div class="ui-room hide ui-room--0"><span></span></div>
@@ -28,24 +52,54 @@ module.exports = ({ store }, emit, emitter) => {
           <div class="ui-room hide ui-room--3"><span></span></div>
         </div>
       </div>
-      <div class="ui-error">
-        <span>${data.errorMsg || ""}</span>
-      </div>
+      ${renderAppMessages()}
+      ${renderComms()}
     </section>
   `
 
-  Gui.on("disconnect", v => {
-    tree.rerender()
-  })
+  const renderHeader = (data = {}) =>
+    header.render(headerHTML(data), "ui-header")
 
   emitter.on("room:change", v => {
-    tree.update(getHTML({ id: v }))
-    tree.rerender()
+    renderHeader({ id: v })
   })
 
-  store.on("errorMsg", v => tree.update(getHTML({ errorMsg: v })))
+  const renderAppMessages = (data = {}) =>
+    messages.render(appMessagesHTML(data), "ui-messages")
+
+  Gui.on("infoMsg", v =>
+    renderAppMessages({ msg: v, class: "ui-messages--info" })
+  )
+
+  Gui.on("errorMsg", v =>
+    renderAppMessages({ msg: v, class: "ui-messages--error" })
+  )
+  Gui.on("finalRecordProgress", v =>
+    renderAppMessages({
+      msg: !!v ? `${Math.ceil(v * 100)}% through encoding your .mp4` : "",
+      class: "ui-messages--info",
+    })
+  )
+
+  let _commData = {
+    you: "",
+    remote: "",
+  }
+  const renderComms = (data = {}) => {
+    _commData = { ..._commData, ...data }
+    return comms.render(commsHTML(_commData), "ui-comms")
+  }
+
+  AppEmitter.on("desktop:communcation", str =>
+    renderComms({ you: str })
+  )
+  AppEmitter.on("desktop:communcation:remote", str =>
+    renderComms({ remote: str })
+  )
 
   return tree.render(getHTML(store.room), "u-full RoomUi", {
-    onload: () => {},
+    onload: () => {
+      emit("view:ui:onload")
+    },
   })
 }

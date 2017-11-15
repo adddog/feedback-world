@@ -80,6 +80,7 @@
     "estraverse": "^4.2.0",
     "glslify": "^6.1.0",
     "normalize.css": "^7.0.0",
+    "postcss-animations": "^0.3.0",
     "postcss-cli": "^4.1.1",
     "postcss-easings": "^1.0.1",
     "postcss-extend": "^1.0.5",

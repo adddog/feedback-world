@@ -73,7 +73,7 @@ const DesktopInteraction = (webrtc, sourceEl) => {
     document.body.appendChild(canvasOff)
   }
 
-  sourceEl.addEventListener("click", e => {
+  window.addEventListener("click", e => {
     let { width, height, x, y } = cover(
       window.innerWidth,
       window.innerHeight,
@@ -162,11 +162,42 @@ const DesktopInteraction = (webrtc, sourceEl) => {
 
   window.addEventListener(
     "mousemove",
-    throttle(e => AppEmitter.emit("mousemove", { x: e.pageX, y: e.pageY }), 100)
+    throttle(
+      e => AppEmitter.emit("mousemove", { x: e.pageX, y: e.pageY }),
+      100
+    )
   )
+
+  let _commString = ""
+  let _commTo
+  const onKeyUp = e => {
+    clearTimeout(_commTo)
+    if (e.keyCode === 13) {
+      _commString = ""
+    } else if (e.keyCode === 8) {
+      _commString = _commString.substring(0, _commString.length - 1)
+    } else {
+      _commString += String.fromCharCode(e.keyCode)
+    }
+    _commTo = setTimeout(function(){
+      _commString = ""
+      AppEmitter.emit("desktop:communcation", _commString)
+    }, 4000)
+    AppEmitter.emit("desktop:communcation", _commString)
+  }
+
+  function addKeyboardCommunication() {
+    window.addEventListener("keyup", onKeyUp)
+  }
+
+  function removeKeyboardCommunication() {
+    window.removeEventListener("keyup", onKeyUp)
+  }
 
   return {
     setOnFileDropped,
+    addKeyboardCommunication,
+    removeKeyboardCommunication,
   }
 }
 

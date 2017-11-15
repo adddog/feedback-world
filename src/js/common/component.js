@@ -12,6 +12,12 @@ class InnerComponent extends Nanocomponent {
     this.text = text
     return true
   }
+
+  load(el) {
+    if (this._cb.onload) {
+      this._cb.onload(this.element)
+    }
+  }
 }
 
 class Component extends Nanocomponent {
@@ -33,6 +39,7 @@ class Component extends Nanocomponent {
     }
     this.classes = classes
     this.text = text
+    this._inner._cb = this._cb
     return html`
     <div class="${isObject(this.classes) ? null : this.classes}">
       ${this._inner.render(this.text)}

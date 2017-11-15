@@ -44,6 +44,7 @@ module.exports = ctx => ({
       },
     }),
     require("postcss-filters"),
+    require("postcss-animations"),
     require("postcss-image-inliner")({
       assetPaths: ["src/"],
       maxFileSize: 1524000,

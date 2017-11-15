@@ -1,3 +1,4 @@
+import Gui from "./gui"
 import Detector from "./detector"
 import colors from "nice-color-palettes"
 import tiza from "tiza"
@@ -11,6 +12,22 @@ export const logError = str => tiza.log(error(str))
 export const logInfo = str => tiza.log(info(str))
 export const logSuccess = str => tiza.log(success(str))
 
+let _msgTo
+export const postErrMsg = str => {
+  clearTimeout(_msgTo)
+  Gui.errorMsg = str
+  _msgTo = setTimeout(function() {
+    Gui.errorMsg = ""
+  }, 1500)
+}
+export const postMsg = str => {
+  clearTimeout(_msgTo)
+  Gui.infoMsg = str
+  _msgTo = setTimeout(function() {
+    Gui.infoMsg = ""
+  }, 1500)
+}
+
 export const videoSettings = {
   width: { max: WIDTH },
   height: { max: HEIGHT },
@@ -18,7 +35,7 @@ export const videoSettings = {
 }
 
 export const COLOR_P = process.env.NODE_ENV === "production"
-
+console.log("process.env.NODE_ENV",process.env.NODE_ENV);
 export const IS_PROD = process.env.NODE_ENV === "production"
 export const IS_STAGE = process.env.NODE_ENV === "stage"
 export const IS_DEV = process.env.NODE_ENV === "development"

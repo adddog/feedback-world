@@ -8,6 +8,10 @@ const o = observable({
   localPeerId:null,
 
   errorMsg:"",
+  infoMsg:"",
+
+  recordSamples:0,
+  recordProgress: 0,
 
   secret:null,
   tolerance: 0.5,
@@ -40,16 +44,17 @@ const o = observable({
   connect: false,
   disconnect: false,
 
+  recording: false,
+  rendering: false,
+  finalRecordProgress: 0,
+
   startWebcam:()=>{},
   stopWebcam:()=>{},
 
-  recording: false,
-  rendering: false,
   recordStart: () => {},
   recordEnd: () => {},
   recordFinalStart: () => {},
   recordFinalStop: () => {},
-  recordProgress: 0,
   instagram: () => {
     Server.insta().then(t=>{
       console.log(t);
@@ -68,7 +73,9 @@ if(!IS_PROD){
   gui.add(o, "recordFinalStart")
   gui.add(o, "recordFinalStop")
   gui.add(o, "instagram")
+  gui.close()
 }
+
 
 export const connect = ()=>{
   o.disconnect = false

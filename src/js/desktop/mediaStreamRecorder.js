@@ -52,7 +52,9 @@ var Recorder = (stream, options) => {
 
   function stop(cb) {
     _cb = cb
-    mediaRecorder.stop()
+    if(mediaRecorder.state === "recording"){
+      mediaRecorder.stop()
+    }
     //mediaRecorder.requestData()
   }
 

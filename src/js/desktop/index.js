@@ -1,14 +1,12 @@
 import uuid from "uuid"
 import sono from "sono"
 import Socket from "../socket"
-import UI from "./ui"
 import Regl from "./regl"
 import DesktopInteraction from "./interaction"
 import AppEmitter from "../common/emitter"
 import MSRecorder from "./mediaStreamRecorder"
 import Instagram from "./instagram"
 import Webcam from "./webcam"
-import Pixi from "./pixi/"
 import Record from "./record"
 import Recorder from "./soundRecorder"
 import Sound from "./sound"
@@ -40,6 +38,7 @@ import {
   logError,
   logInfo,
   logSuccess,
+  postMsg,
   createVideoElFromStream,
 } from "../common"
 
@@ -93,10 +92,11 @@ const Desktop = (webrtc, state, emitter) => {
   canvasKey.height = KEY_H
 
   if (IS_DEV) {
-    canvasKey.classList.add("canvas")
-    document.body.appendChild(canvasKey)
+    //canvasKey.classList.add("canvas")
+    //document.body.appendChild(canvasKey)
   }
   const reset = () => {
+    interaction.removeKeyboardCommunication()
     localVideo.isReady = false
     isReady = false
     pairedMobile.engaged = false
@@ -110,7 +110,6 @@ const Desktop = (webrtc, state, emitter) => {
   const keyCtx = canvasKey.getContext("2d")
 
   const regl = Regl(canvasEl)
-  const pixi = Pixi(state, emitter, document.getElementById("pixi"))
   const interaction = DesktopInteraction(webrtc, canvasEl)
   interaction.setOnFileDropped(urlBlob => {
     const video = document.createElement("video")
@@ -124,7 +123,6 @@ const Desktop = (webrtc, state, emitter) => {
   const instagram = Instagram(videoEl)
   const sound = Sound()
   const record = Record()
-  const ui = UI()
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
   const sendChannel = (msg, payload) =>
@@ -135,7 +133,7 @@ const Desktop = (webrtc, state, emitter) => {
   //****************
 
   const tryStarting = peerValues => {
-    console.log(pairedMobile.id, pairedMobile.isReady)
+    console.log(`tryStarting: pairedMobile.id: ${pairedMobile.id} pairedMobile.isReady: ${pairedMobile.isReady}`);
     if (
       pairedMobile.id &&
       !pairedMobile.isReady &&
@@ -167,7 +165,8 @@ const Desktop = (webrtc, state, emitter) => {
           pairedMobile.el = pairedMobile.peer.videoEl
 
           function _onProgress() {
-            pairedMobile.isReady = true
+            setPairedMobileReady()
+            postMsg(`connected with your phone`)
             logSuccess(`localMobile playing!`)
             pairedMobile.peer.videoEl.removeEventListener(
               "progress",
@@ -198,9 +197,6 @@ const Desktop = (webrtc, state, emitter) => {
   const createCanvasStream = () => {
     const stream = canvasEl.captureStream(FPS)
     webrtc.webrtc.localStreams.unshift(stream)
-    console.log(webrtc.webrtc.localStreams[0].getAudioTracks())
-    console.log(webrtc.webrtc.localStreams[0].getVideoTracks())
-
     /*const v = document.createElement("video")
     v.width = WIDTH
     v.height = HEIGHT
@@ -210,6 +206,7 @@ const Desktop = (webrtc, state, emitter) => {
   }
 
   const cancelStream = stream => {
+    if (!stream) return
     stream.getTracks().forEach(track => track.stop())
   }
 
@@ -220,6 +217,10 @@ const Desktop = (webrtc, state, emitter) => {
   }
 
   const stopKeyVideo = () => (keyVideo.isReady = false)
+
+  const setPairedMobileReady = () => {
+    pairedMobile.isReady = true
+  }
 
   const setVideoToKey = el => {
     keyVideo.el = el
@@ -277,6 +278,9 @@ const Desktop = (webrtc, state, emitter) => {
           const numDesktops = numberDesktops(peerIds.values())
           logInfo(`numDesktops ${numDesktops}`)
 
+
+          interaction.addKeyboardCommunication()
+
           if (numDesktops >= 1 && pairedMobile.id) {
             connectToOtherDesktop(findPeer(peers.values(), data.from))
           }
@@ -315,10 +319,12 @@ const Desktop = (webrtc, state, emitter) => {
               localData.id = id
               pairedMobile.id = data.from
               logSuccess(`localMobile peer id : ${pairedMobile.id}`)
+              postMsg(`paired with your phone...`)
               tryStarting(peers.values())
             }
           } else if (!pairedMobile.secret && !secret) {
             console.log(`\t No local secret or no payload secret`)
+            postMsg(`paired with your phone...`)
             pairedMobile.id = data.from
             localData.id = id
             tryStarting(peers.values())
@@ -361,6 +367,10 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
 
+        case "local:desktop:message":{
+          AppEmitter.emit("desktop:communcation:remote", data.payload)
+          break
+        }
         case "local:desktop:addKeyColor":
         case "local:mobile:addKeyColor": {
           addKeyColor(data.payload)
@@ -370,6 +380,7 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_DEVICE_MOTION: {
+          if (!Gui.rendering) return
           Gui.deviceMotion = data.payload
           Gui.echo = {
             ...Gui.echo,
@@ -378,6 +389,7 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_DEVICE_ORIEN: {
+          if (!Gui.rendering) return
           Gui.deviceOrien = data.payload
           if (data.payload.landscape) {
             Gui.panner = {
@@ -446,6 +458,7 @@ const Desktop = (webrtc, state, emitter) => {
       foundPeer.desktop &&
       foundPeer.isPlayingMedia
     ) {
+      postMsg(`connected to another desktop`)
       //another desktops stream
       setVideoToKey(peer.videoEl)
     } else if (
@@ -453,6 +466,7 @@ const Desktop = (webrtc, state, emitter) => {
       foundPeer.desktop &&
       foundPeer.isPlayingMedia
     ) {
+      postMsg(`connected with your phone`)
       //another desktops stream, you have a mobile
       console.log(peer)
       //keyVideo.el = peer.videoEl
@@ -497,18 +511,23 @@ const Desktop = (webrtc, state, emitter) => {
 
     setTimeout(() => {
       Gui.recording = true
-    }, 2000)
+    }, RECORD_FRAMES_DELAY)
 
     emitter.emit("desktop:render:start")
   }
 
   const recordFinalStop = () => {
     emitter.emit("desktop:render:stop")
+    if (videoEl) videoEl.pause()
+    webrtc.webrtc.localStreams.forEach(cancelStream)
+    webrtc.webrtc.peers.forEach(peer => cancelStream(peer.stream))
     Gui.recording = false
     Gui.rendering = false
     sono.stopAll()
     sono.destroyAll()
     sound.recordMasterStop((blob, duration) => {
+      sound.destroy()
+      logInfo(`audio complete, duration: ${duration}`)
       record.addAudio(blob, duration)
       record.start(canvasKey).then(video => {
         emitter.emit("desktop:render:completed")
@@ -583,14 +602,7 @@ const Desktop = (webrtc, state, emitter) => {
   //DEV
   Gui.recordFinalStart = recordFinalStart
   Gui.recordFinalStop = recordFinalStop
-  Gui.startWebcam = () => {
-    webcam
-      .start()
-      .then(stream => {
-        setVideoToKey(createVideoElFromStream(stream))
-      })
-      .catch(err => {})
-  }
+  Gui.startWebcam = () => {}
   Gui.stopWebcam = () => {
     stopKeyVideo()
     webcam.stop(keyVideo.el)
@@ -621,9 +633,35 @@ const Desktop = (webrtc, state, emitter) => {
     }
   })
 
-  AppEmitter.on("insta:loaded", ()=>{
+  AppEmitter.on("webcam:start", () => {
+    webcam
+      .start()
+      .then(stream => {
+        setVideoToKey(createVideoElFromStream(stream))
+      })
+      .catch(err => {})
+  })
+
+  AppEmitter.on("webcam:stop", () => {
+    stopKeyVideo()
+    webcam.stop(keyVideo.el)
+  })
+
+  AppEmitter.on("insta:loaded", () => {
     setVideoToKey(videoEl)
   })
+
+  AppEmitter.on("record:final:start", () => {
+    recordFinalStart()
+  })
+
+  AppEmitter.on("record:final:stop", () => {
+    recordFinalStop()
+  })
+
+  AppEmitter.on("desktop:communcation", str =>
+    send("local:desktop:message", str)
+  )
 
   Gui.on("disconnect", v => {
     if (v) {
@@ -643,6 +681,8 @@ const Desktop = (webrtc, state, emitter) => {
 
   addListeners()
   createCanvasStream()
+
+  console.log(webrtc)
 
   return {
     addListeners,

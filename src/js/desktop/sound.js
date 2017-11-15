@@ -2,7 +2,7 @@ import MediaStreamRecorder from "msr"
 import sono from "sono"
 import "sono/utils/recorder"
 import "sono/utils/microphone"
-
+import AppEmitter from "../common/emitter"
 import Effects from "sono/effects"
 import Gui from "../common/gui"
 import Recorder from "./soundRecorder"
@@ -72,6 +72,7 @@ const Sound = () => {
 
   let _rProgress
   function recordStart() {
+    if (!mediaRecorder) return
     mediaRecorder.start()
     clearInterval(_rProgress)
     let _t = 0
@@ -88,6 +89,7 @@ const Sound = () => {
     if (!Gui.recordProgress) return
     mediaRecorder.stop()
     clearInterval(_rProgress)
+    Gui.recordSamples += 1
     Gui.recordProgress = 0
   }
 
@@ -103,14 +105,21 @@ const Sound = () => {
 
   function recordMasterStop(cb) {
     mediaRecorder2.stop(blob => {
-      cb(blob, 2)
+      cb(blob, blob.size / 44100)
     })
   }
+
+  AppEmitter.on("record:audio:start", recordStart)
+  AppEmitter.on("record:audio:stop", recordEnd)
 
   Gui.recordStart = recordStart
   Gui.recordEnd = recordEnd
 
   Gui.on("disconnect", v => {
+    destroy(v)
+  })
+
+  function destroy(v) {
     if (!v) {
       if (mediaRecorder) {
         mediaRecorder.stop()
@@ -131,7 +140,7 @@ const Sound = () => {
       })
       _sounds.length = 0
     }
-  })
+  }
 
   return {
     init,
@@ -140,6 +149,7 @@ const Sound = () => {
     sounds: _sounds,
     recordStart,
     recordEnd,
+    destroy,
   }
 }
 

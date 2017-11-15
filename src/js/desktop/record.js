@@ -16,7 +16,21 @@ const Record = () => {
     _duration = duration.toFixed(1)
   }
 
-  function transcode(blob, sound) {
+  function encodeProgress(msg) {
+    if (!msg) return
+    if (!msg.data || typeof msg.data !== "string") return
+    const i = msg.data.indexOf("time=")
+    if (i > -1) {
+      let time = msg.data.substring(i + 5, i + 17).replace(/:/g, "")
+      while (time.charAt(0) === "0") {
+        time = time.substring(1, time.length)
+      }
+      const p = parseFloat(time) / parseFloat(_duration)
+      Gui.finalRecordProgress = p
+    }
+  }
+
+  function transcode(blob, sound, perams) {
     console.log(sound)
     console.log("will transcode", blob)
     return new Promise((resolve, reject) => {
@@ -24,7 +38,7 @@ const Record = () => {
       let stderr, stdout
       worker.onmessage = e => {
         let msg = e.data
-        console.log(msg)
+        encodeProgress(msg)
         switch (msg.type) {
           case "ready":
             worker.postMessage({
@@ -61,7 +75,8 @@ const Record = () => {
                 "yuv420p",
                 "-f",
                 "mp4",
-                "-shortest",
+                "-t",
+                `${perams.duration}`,
                 "output.mp4",
               ],
             })
@@ -151,15 +166,22 @@ const Record = () => {
 
     frames.length = 0
 
-    const blob = window.Whammy.fromImageArray(
-      webms,
-      Math.floor(FPS / 2)
-    )
+    const WhammyFPS = Math.floor(FPS / 2)
+    const finalDuration = Math.min(
+      _duration,
+      webms.length / WhammyFPS
+    ).toFixed(2)
+    _duration = finalDuration
+    console.log("finalDuration", _duration)
+    const blob = window.Whammy.fromImageArray(webms, WhammyFPS)
 
     console.log("DONE")
 
-    return transcode(blob, _audio).then(video => {
-      downloadData(video)
+    return transcode(blob, _audio, {
+      duration: finalDuration,
+    }).then(video => {
+      Gui.finalRecordProgress = 0
+      downloadData(video, `feedback_world_${Gui.state.room.id}`)
       return video
     })
   }

@@ -21,14 +21,14 @@ module.exports = ({store}, emit) => {
       </div>`
 
   const tree = new Component()
-
+//${renderPixi()}
   return tree.render(
     html`
     <section class="room u-full">
       <video class="u-full video--local" id="localVideo" playsinline autoplay ></video>
       <div class="u-full videos--remote" id="remoteVideos"></div>
       ${renderCanvas()}
-      ${renderPixi()}
+
     </section>
   `,
     {
