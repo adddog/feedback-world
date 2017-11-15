@@ -15,9 +15,9 @@ class Socket {
     this._socket = s
 
     this._socket.on("connect", id => {
-      this.createRoom({
+      /*this.createRoom({
         roomId: Gui.state.room.id.length ? Gui.state.room.id : null,
-      })
+      })*/
     })
 
     this._socket.on("handshake", roomId => {

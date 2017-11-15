@@ -162,10 +162,7 @@ const DesktopInteraction = (webrtc, sourceEl) => {
 
   window.addEventListener(
     "mousemove",
-    throttle(e =>
-      AppEmitter.emit("mousemove", { x: e.pageX, y: e.pageY }),
-      100
-    )
+    throttle(e => AppEmitter.emit("mousemove", { x: e.pageX, y: e.pageY }), 100)
   )
 
   return {

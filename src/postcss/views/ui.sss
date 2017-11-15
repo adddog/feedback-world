@@ -3,14 +3,37 @@
   top: 0
   left: 0
   width: 100%
-  height: 30px
+  display: flex
+  flex-direction: row
+  align-items: flex-start
+  justify-content: space-between
+  transition: transform 0.3s easeOutSine
+  font-family: $ffSmall
+  &.hide
+    transition: transform 0.3s easeInSine
+    transform: translateY(-100%)
+  h1
+    color: $cWhite
+    padding-left: 10px
+    font-size: fSmaller
+    text-shadow: 1px 1px 1px #111
+    span
+      font-size: calc($fSmaller / 1.2)
 
-.ui-rooms
+
+.ui-footer
   position: absolute
   bottom: 0
-  left: 0
   width: 100%
-  height: 20px
+  left: 0
+  display: flex
+  justify-content: space-between
+  align-items: center
+  transition: transform 0.3s easeOutSine
+  &.hide
+    transition: transform 0.3s easeInSine
+    transform: translateY(100%)
+
 
 .ui-button
   cursor: pointer
@@ -21,17 +44,14 @@
   max-width: 120px
   background-image: url("images/button.png")
   background-size: contain
+  background-position: 50% 50%
   background-repeat: no-repeat
   &:hover
     filter: LoFi
 
 .ui-record-c
-  position: absolute
-  left: 0
-  bottom: 0
 
 .ui-record
-  cursor: pointer
   cursor: pointer
   @extend %t-small
   color: $cDark
@@ -39,9 +59,11 @@
   min-width: 60px
   background-image: url("images/record.png")
   background-size: contain
+  background-position: 50% 50%
   background-repeat: no-repeat
   &:hover
     filter: LoFi
+
 
 .ui-record--micro
   position: relative
@@ -55,3 +77,118 @@
     background-image: url("images/micro.png")
     background-size: contain
     background-repeat: no-repeat
+
+.ui-medias
+  display: flex
+  align-items: flex-end
+  justify-content: flex-end
+
+.ui-media
+  position: relative
+  cursor: pointer
+  padding: 0 10px
+  width: 70px
+  height: 70px
+  background-image: url("images/button1.png")
+  background-size: contain
+  background-repeat: no-repeat
+  background-position: 50% 50%
+  &:hover
+    filter: LoFi
+    animation: hueSpin 6s infinite
+  &--insta
+    &:after
+      position: absolute
+      left: 30%
+      top: 30%
+      width: 40%
+      height: 40%
+      content: ''
+      background-image: url("images/insta.png")
+      background-size: contain
+      background-position: 50% 50%
+      background-repeat: no-repeat
+  &--webcam
+    &:after
+      position: absolute
+      left: 30%
+      top: 30%
+      width: 40%
+      height: 40%
+      content: ''
+      background-image: url("images/webcam.png")
+      background-size: contain
+      background-position: 50% 50%
+      background-repeat: no-repeat
+
+
+.ui-rooms
+  display: flex
+  align-items: flex-end
+  justify-content: flex-end
+  transition: transform 0.3s easeOutSine
+  &.hide
+    transition: transform 0.3s easeInSine
+    transform: translateY(100%)
+
+.ui-room
+  cursor: pointer
+  position: relative
+  width: 70px
+  height: 70px
+  display: flex
+  align-items: center
+  justify-content: center
+  &.hide
+    display: none
+  span
+    letter-spacing: 1px
+  &:hover
+    filter: hue-rotate(0deg) invert(0.23) saturate(4) !important
+  &--0
+    background-image: url("images/room0.png")
+    background-size: contain
+    background-position: 50% 50%
+    background-repeat: no-repeat
+    span
+      transform: scale(1.0) scaleZ(1.0) translateY(-18px) rotateX(-33deg) rotateY(2deg) translateZ(10px) rotateZ(-19deg)
+      transform-origin: 50% 60%
+  &--1
+    background-image: url("images/room1.png")
+    background-size: contain
+    background-position: 50% 50%
+    background-repeat: no-repeat
+    span
+      transform: scale(1.0) scaleZ(1.0) translateY(-8px) rotateX(-33deg) rotateY(2deg) translateZ(9px) rotateZ(-19deg) skewX(-15deg)
+      transform-origin: 50% 60%
+  &--2
+    background-image: url("images/room2.png")
+    background-size: contain
+    background-position: 50% 50%
+    background-repeat: no-repeat
+    span
+      transform: scale(1.0) scaleZ(1.0) translateY(-18px) rotateX(-33deg) rotateY(2deg) translateZ(10px) rotateZ(-19deg)
+      transform-origin: 50% 60%
+  &--3
+    background-image: url("images/room3.png")
+    background-size: contain
+    background-position: 50% 50%
+    background-repeat: no-repeat
+    span
+      transform: scale(1.0) scaleZ(1.0) translateY(-18px) rotateX(-33deg) rotateY(2deg) translateZ(10px) rotateZ(-19deg)
+      transform-origin: 50% 60%
+
+
+.ui-error
+  position: fixed
+  display: flex
+  align-items: center
+  justify-content: center
+  left: 0
+  top: 0
+  width: 100%
+  height: 100%
+  pointer-events: none
+  span
+    color: $cError
+

@@ -3,6 +3,7 @@ import AppEmitter from "../../common/emitter"
 import Gui from "../../common/gui"
 import Socket from "../../socket"
 import { sample } from "lodash"
+import Color from "color"
 import colors from "nice-color-palettes"
 
 const Peers = (state, emitter, pixi) => {
@@ -20,13 +21,13 @@ const Peers = (state, emitter, pixi) => {
   }
 
   const drawRoom = (roomId, i) => {
+    //const cc = Color(`0x${sample(colors)}`)
     const c = sample(colors)
     const icon = new PIXI.Graphics()
     icon.interactive = true
     icon.userData = {
       roomId,
     }
-
 
     icon.on("click", () => {
       clear()
@@ -35,35 +36,17 @@ const Peers = (state, emitter, pixi) => {
     })
 
     const fill = sample(c)
+    console.log(fill)
     icon.beginFill(parseInt(`0x${fill.substring(1, fill.length)}`), 1)
-    icon.drawCircle(i * 20, 20, 10)
+    icon.drawCircle(
+      window.innerWidth - (i+1) * 20,
+      window.innerHeight - 20,
+      10
+    )
     icon.endFill()
     gfxC.addChild(icon)
   }
 
-  Gui.on("started", v => {
-    Socket.socket.on("rooms:get", rooms => {
-      clear()
-      _rooms = rooms.filter(r => r !== state.room.id)
-
-      _rooms.forEach((r, i) => drawRoom(r, i))
-
-      renderer.render(gfxC)
-    })
-
-    Socket.socket.emit("rooms:get")
-    logInfo("\tPeers listening for new rooms")
-  })
-
-  window.addEventListener("resize", () => {
-    renderer.render(gfxC)
-  })
-
-  Gui.on("connect", v => {
-    if (v) {
-      Socket.socket.emit("rooms:get")
-    }
-  })
 
   return {}
 }

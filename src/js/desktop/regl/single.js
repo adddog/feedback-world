@@ -17,11 +17,13 @@ const Single = regl => {
     frag: `
 
       precision lowp float;
+      uniform int flipX;
       uniform sampler2D texture;
       varying vec2 vUv;
 
       void main () {
         vec2 uv = vUv;
+        uv.x *= float(flipX);
         gl_FragColor = vec4(texture2D(texture, uv).rgb,1);
       }`,
     attributes: {
@@ -60,6 +62,7 @@ const Single = regl => {
         1,
       ],
       projection: regl.context("projection"),
+      flipX: regl.prop("flipX"),
       texture: regl.prop("texture"),
     },
   })

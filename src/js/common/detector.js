@@ -19,6 +19,7 @@ Detector.isIOS6 = !!(ua.match(/OS 6(_\d)+ like Mac OS X/i));
 Detector.isIOS7 = !!(ua.match(/OS 7(_\d)+ like Mac OS X/i));
 Detector.isIOS8 = !!(ua.match(/OS 8(_\d)+ like Mac OS X/i));
 Detector.isIOS9 = !!(ua.match(/OS 9(_\d)+ like Mac OS X/i));
+Detector.isIOS11 = !!(ua.match(/OS 11(_\d)+ like Mac OS X/i));
 Detector.IOSVersion = (() => {
   if (/iP(hone|od|ad)/.test(navigator.platform)) {
     // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>

@@ -9,6 +9,7 @@ module.exports = ctx => ({
     require("postcss-simple-vars")({ root: ctx.file.dirname }),
     //require("postcss-css-variables")({ root: ctx.file.dirname }),
     require("postcss-nested")({ root: ctx.file.dirname }),
+    require("postcss-easings")({ root: ctx.file.dirname }),
     require("postcss-extend")({ root: ctx.file.dirname }),
     require("postcss-smart-import")({
       root: ctx.file.dirname,

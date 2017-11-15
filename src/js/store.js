@@ -120,6 +120,7 @@ const WebRTC = (store, emitter) => {
 
     emitter.on("webrtc:connect", ({ roomId }) => {
       //webrtc.stopLocalVideo()
+      console.log(`webrtc:connect ${roomId}`)
       Socket.emit(
         "rooms:canJoin",
         { roomId, desktop: IS_DESKTOP },
@@ -136,7 +137,9 @@ const WebRTC = (store, emitter) => {
             connect()
             joinRoom(roomId)
           } else {
+            store.errorMsg = `Cannot join room ${roomId}`
             logError(`Cannot join room ${roomId}`)
+            setTimeout(() => window.location.reload(), 1000)
           }
         }
       )
@@ -151,6 +154,7 @@ const WebRTC = (store, emitter) => {
       if (Gui.started) return
       Gui.started = true
     })
+
     emitter.emit("webrtc:connect", { roomId: store.room.id })
   }
 
@@ -169,18 +173,17 @@ function store(state, emitter) {
 
     room: {
       created: false,
-      id: "",
+      id: QS.parse(location.search).room || "",
       recording: false,
     },
   })
 
   Gui.state = state.store
 
-  const updateRoom = obj => (state.store.room = { ...state.store.room, ...obj })
+  const updateRoom = obj =>
+    (state.store.room = { ...state.store.room, ...obj })
 
-  emitter.on("DOMContentLoaded", function() {
-
-  })
+  emitter.on("DOMContentLoaded", function() {})
 
   emitter.on("set:roomId", v => {
     state.store.randomRoomId = v
@@ -199,9 +202,8 @@ function store(state, emitter) {
     logInfo("Set socket")
   })*/
   emitter.on("room:create", roomId => {
-    updateRoom({ id: roomId})
     if (state.store.room.created) {
-      emitter.emit("webrtc:connect", { roomId: roomId })
+      emitter.emit("webrtc:connect", { roomId: state.store.room.id })
     } else {
       updateRoom({ created: true })
       emitter.emit("render")
@@ -209,10 +211,8 @@ function store(state, emitter) {
   })
 
   emitter.on("room:create:input", v => {
-    console.log(v);
     updateRoom({ id: v })
   })
-
 
   Socket.emitter = emitter
 
@@ -222,6 +222,7 @@ function store(state, emitter) {
 
   Server.roomId().then(({ roomId }) => {
     state.store.randomRoomId = state.store.randomRoomId || roomId
+    updateRoom({ id: state.store.randomRoomId })
   })
 }
 

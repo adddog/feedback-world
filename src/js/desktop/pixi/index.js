@@ -1,5 +1,5 @@
 import "pixi.js"
-import {HEADER_HEIGHT} from './constants'
+import {HEADER_HEIGHT,ORANGE} from './constants'
 import Peers from "./peers"
 import AppEmitter from "../../common/emitter"
 import Gui from "../../common/gui"
@@ -28,12 +28,12 @@ const Pixi = (state, emitter, parentEl) => {
   const updateRecordBar = p => {
     // set a fill and a line style again and draw a rectangle
     recordBar.clear()
-    recordBar.beginFill(0xff700b, 1)
+    recordBar.beginFill(ORANGE, 1)
     recordBar.drawRect(
       0,
-      window.innerHeight - 60,
+      window.innerHeight - 10,
       window.innerWidth * p,
-      60
+      10
     )
     recordBar.endFill()
 
@@ -41,7 +41,7 @@ const Pixi = (state, emitter, parentEl) => {
   }
 
   AppEmitter.on("mousemove", ({y})=>{
-    if(y < HEADER_HEIGHT){
+    if(y > window.innerHeight - HEADER_HEIGHT){
       parentEl.classList.remove('no-interaction')
     }else{
       parentEl.classList.add('no-interaction')
@@ -50,7 +50,7 @@ const Pixi = (state, emitter, parentEl) => {
 
   Gui.on("recordProgress", v => updateRecordBar(v))
 
-  const peerGraphics = Peers(state, emitter, {stage, renderer})
+  //const peerGraphics = Peers(state, emitter, {stage, renderer})
 
   return {
     stage,

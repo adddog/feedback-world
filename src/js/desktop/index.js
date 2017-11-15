@@ -1,6 +1,7 @@
 import uuid from "uuid"
 import sono from "sono"
 import Socket from "../socket"
+import UI from "./ui"
 import Regl from "./regl"
 import DesktopInteraction from "./interaction"
 import AppEmitter from "../common/emitter"
@@ -123,6 +124,7 @@ const Desktop = (webrtc, state, emitter) => {
   const instagram = Instagram(videoEl)
   const sound = Sound()
   const record = Record()
+  const ui = UI()
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
   const sendChannel = (msg, payload) =>
@@ -196,6 +198,8 @@ const Desktop = (webrtc, state, emitter) => {
   const createCanvasStream = () => {
     const stream = canvasEl.captureStream(FPS)
     webrtc.webrtc.localStreams.unshift(stream)
+    console.log(webrtc.webrtc.localStreams[0].getAudioTracks())
+    console.log(webrtc.webrtc.localStreams[0].getVideoTracks())
 
     /*const v = document.createElement("video")
     v.width = WIDTH
@@ -215,9 +219,12 @@ const Desktop = (webrtc, state, emitter) => {
     cancelStream(peer.stream)
   }
 
+  const stopKeyVideo = () => (keyVideo.isReady = false)
+
   const setVideoToKey = el => {
     keyVideo.el = el
     keyVideo.isReady = true
+    logSuccess(`keyVideo.isReady ${true}`)
   }
 
   const connectToOtherDesktop = peer => {
@@ -316,7 +323,7 @@ const Desktop = (webrtc, state, emitter) => {
             localData.id = id
             tryStarting(peers.values())
           } else if (secret && !pairedMobile.secret) {
-            logError(`Not for you! ${data.from}`)
+            logError(`Not for you! ${data.from} (mobile)`)
             peerIds.get(data.from).stopStream = true
             cancelStreamFromPeer(findPeer(peers.values(), data.from))
           } else if (!secret && pairedMobile.secret) {
@@ -431,7 +438,6 @@ const Desktop = (webrtc, state, emitter) => {
 
     if (foundPeer && foundPeer.stopStream) {
       //mobile stream not belonging to you
-      console.log(foundPeer)
       cancelStream(peer.stream)
       //video.parent.removeChild(video)
     } else if (
@@ -529,6 +535,7 @@ const Desktop = (webrtc, state, emitter) => {
           regl.drawSingle({
             mobile: {
               source: pairedMobile.el,
+              flipX: true,
               width: WIDTH,
               height: HEIGHT,
             },
@@ -557,6 +564,7 @@ const Desktop = (webrtc, state, emitter) => {
             mobile: {
               source: keyVideo.el,
               width: WIDTH,
+              flipX: true,
               height: HEIGHT,
             },
           })
@@ -584,11 +592,13 @@ const Desktop = (webrtc, state, emitter) => {
       .catch(err => {})
   }
   Gui.stopWebcam = () => {
-    keyVideo.isReady = false
+    stopKeyVideo()
     webcam.stop(keyVideo.el)
   }
   Gui.instagram = () => {
-    instagram.load(setVideoToKey)
+    /*instagram
+      .load(setVideoToKey)
+      .then(videoEl => setVideoToKey(videoEl))*/
   }
 
   //*************
@@ -609,6 +619,10 @@ const Desktop = (webrtc, state, emitter) => {
     } else {
       emitter.emit("webrtc:connect", { roomId })
     }
+  })
+
+  AppEmitter.on("insta:loaded", ()=>{
+    setVideoToKey(videoEl)
   })
 
   Gui.on("disconnect", v => {

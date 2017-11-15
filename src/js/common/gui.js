@@ -7,6 +7,8 @@ const o = observable({
   state:null,
   localPeerId:null,
 
+  errorMsg:"",
+
   secret:null,
   tolerance: 0.5,
   slope: 0.08,

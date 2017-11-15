@@ -1,8 +1,12 @@
+$cError: #e21238
 $cWhite: #f9f6ed
 $cDark: #222
 $cBlue: #BBDEFB
+$fSmaller: .8em
 $fSmall: 1em
 $fBig: 1.6em
+$ffSmall: "Stellar"
+$ffBig: "StellarM"
 
 %flex-c
   display: flex
@@ -33,3 +37,16 @@ $fBig: 1.6em
 
   &:focus
     outline: 0
+
+
+@keyframes hueSpin
+  0%
+    transform-origin: 50% 50%
+    transform: rotateZ(0deg) scale(1)
+  50%
+    transform-origin: 50% 50%
+    transform: rotateZ(180deg) scale(0.6)
+  100%
+    transform-origin: 50% 50%
+    transform: rotateZ(360deg) scale(1)
+

@@ -6,7 +6,10 @@ var bel = require("bel")
 
 const renderText = () =>
   IS_DESKTOP
-    ? html`<div class="home-instruction">If you know your phone's room number, enter it. <br> Or make your own room; pre-filled below</div>`
+    ? html`<div class="home-instruction">
+    <div class="home-instruction--slogan">right here in front of you</div>
+    <div class="home-instruction--instr">If you know your phone's room number, enter it. <br> Or make your own room; pre-filled below</div>
+    </div>`
     : html``
 
 module.exports = ({ store }, emit) => {

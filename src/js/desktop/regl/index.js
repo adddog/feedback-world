@@ -127,6 +127,7 @@ const REGL = (canvas, assets) => {
         })
         singleDraw({
           texture: textures.mobile,
+          flipX: assets.flipX ? -1 : 1,
         })
         ReglGeometryActions.update()
 

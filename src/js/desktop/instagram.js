@@ -1,4 +1,5 @@
 import { videoSettings } from "../common"
+import AppEmitter from "../common/emitter"
 import { sample } from "lodash"
 import Server from "../common/server"
 const Instagram = videoEl => {
@@ -12,16 +13,21 @@ const Instagram = videoEl => {
 
   const _shuffle = videos => {}
 
-  function load(cb) {
-    Server.insta().then(t => {
-      const videos = t.data.filter(d => !!d.videos).map(d=>d.videos.standard_resolution.url)
+  function load() {
+    return Server.insta().then(t => {
+      const videos = t.data
+        .filter(d => !!d.videos)
+        .map(d => d.videos.standard_resolution.url)
       videoEl.addEventListener("ended", () => {
         _playNext(sample(videos))
       })
       _playNext(sample(videos))
-      cb(videoEl)
+      AppEmitter.emit("insta:loaded")
+      return videoEl
     })
   }
+
+  AppEmitter.on("insta:start", load)
 
   return {
     load,
