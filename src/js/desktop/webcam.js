@@ -1,6 +1,7 @@
 import Gui from "../common/gui"
 import { videoSettings } from "../common"
 const Webcam = webrtc => {
+  let _stream
   function start() {
     return new Promise((yes, no) => {
       webrtc.webrtc.start(
@@ -9,7 +10,7 @@ const Webcam = webrtc => {
           if (err) {
             no(err)
           } else {
-            Gui.state.useWebcam = true
+            _stream = stream
             yes(stream)
           }
         }
@@ -17,13 +18,13 @@ const Webcam = webrtc => {
     })
   }
 
-  function stop(videoEl) {
-    webrtc.webrtc.stop(videoEl.srcObject)
-    videoEl = null
+  function stop() {
+    if(!_stream) return
+    webrtc.webrtc.stop(_stream)
   }
 
   return {
-    started: Gui.state.useWebcam,
+    started: !!_stream,
     start,
     stop,
   }

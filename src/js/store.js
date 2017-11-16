@@ -157,6 +157,7 @@ const WebRTC = (store, emitter) => {
 }
 
 function store(state, emitter) {
+  const noCamera = QS.parse(location.search).noc
   state.store = observable({
     randomRoomId: QS.parse(location.search).room,
 

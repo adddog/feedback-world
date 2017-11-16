@@ -1,5 +1,5 @@
 import AppEmitter from "../../common/emitter"
-import {FAR_Z} from "./constants"
+import { FAR_Z } from "./constants"
 import Regl from "regl"
 import mat4 from "gl-mat4"
 import ReglGeometryActions from "./regl-geometry-actions"
@@ -95,9 +95,9 @@ const REGL = (canvas, assets) => {
           texture: textures.mobile,
           keyVideo: textures.keyVideo,
           keyColors: textures.keyColors,
-          uSaturation:GUI.uSaturation,
-          slope:GUI.slope,
-          tolerance:GUI.tolerance,
+          uSaturation: GUI.uSaturation,
+          slope: GUI.slope,
+          tolerance: GUI.tolerance,
         })
         //ReglGeometryActions.update()
       })
@@ -128,7 +128,7 @@ const REGL = (canvas, assets) => {
         })
         singleDraw({
           texture: textures.mobile,
-          uSaturation:GUI.uSaturation,
+          uSaturation: GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
         ReglGeometryActions.update()
@@ -155,6 +155,14 @@ const REGL = (canvas, assets) => {
       })
     }
   }
+
+  setupCamera(() => {
+    regl.clear({
+      color: [0.1, 0.1, 0.1, 1],
+      depth: true,
+      stencil: false,
+    })
+  })
 
   //const data = new Uint8Array(WIDTH * HEIGHT * 4)
   function read() {

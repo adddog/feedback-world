@@ -54,6 +54,7 @@ export const FPS = 18
 export const FPS_I = 1000 / FPS
 
 export const RECORD_FRAMES_DELAY = 1500
+export const FUDGE_VIDEO_DELAY = 3000
 
 export const ALPHA_SENS = 50
 export const AUDIO_EXP = ".webm"
