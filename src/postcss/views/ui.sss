@@ -17,10 +17,10 @@
   h1
     color: $cWhite
     padding-left: 10px
-    font-size: fSmaller
+    font-size: $fsSmaller
     text-shadow: 1px 1px 1px #111
     span
-      font-size: calc($fSmaller / 1.2)
+      font-size: calc($fsSmaller / 1.2)
 
 .ui-header-items
   width: 100%
@@ -161,7 +161,7 @@
   pointer-events: none
   span
     position: relative
-    font-size: $fSmall
+    font-size: $fsSmall
     width: 40%
     letter-spacing: 1px
     transform: skew(-16deg)
@@ -175,7 +175,7 @@
 .ui-comms-items
   display: flex
   width: 40%
-  font-size: $fBig
+  font-size: $fsBig
   flex-direction: column
   align-items: flex-start
   justify-content: center
@@ -184,12 +184,12 @@
     margin-bottom: 0.3em
 
 .ui-comm--you
-  font-size: $fBig
+  font-size: $fsBig
   left: -10px
   color: $cBlueDark
 
 .ui-comm--remote
-  font-size: $fBig
+  font-size: $fsBig
   left: 10px
   color: $cOrange
 
@@ -269,15 +269,15 @@
   height: auto
   &-title
     font-family: $ffSmall
-    font-size: $fSmaller
+    font-size: $fsSmaller
     pointer-events: none
     user-select: none
-    height: $ffSmaller
+    height: $fsSmaller
   &-labels
     position: absolute
     pointer-events: none
     font-family: $ffSmall
-    height: $ffSmall
+    height: $fsSmall
     width: 100%
     display: flex
     align-items: center
