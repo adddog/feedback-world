@@ -16,6 +16,7 @@ const o = observable({
   secret:null,
   tolerance: 0.5,
   slope: 0.08,
+  uSaturation: 1.,
   echo: {
     feedback: 0.5,
     delay: 1,

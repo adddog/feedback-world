@@ -95,6 +95,7 @@ const REGL = (canvas, assets) => {
           texture: textures.mobile,
           keyVideo: textures.keyVideo,
           keyColors: textures.keyColors,
+          uSaturation:GUI.uSaturation,
           slope:GUI.slope,
           tolerance:GUI.tolerance,
         })
@@ -127,6 +128,7 @@ const REGL = (canvas, assets) => {
         })
         singleDraw({
           texture: textures.mobile,
+          uSaturation:GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
         ReglGeometryActions.update()

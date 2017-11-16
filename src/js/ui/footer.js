@@ -50,9 +50,9 @@ const Footer = footerEl => {
     if(_recordingFinal) return
     if (!Gui.recordProgress) {
       AppEmitter.emit("record:audio:start")
-      renderEl.classList.add("active")
+      microEl.classList.remove("active")
     }else{
-      renderEl.classList.remove("active")
+      microEl.classList.add("active")
     }
   })
 

@@ -1,3 +1,4 @@
+import * as Color from './color-glsl'
 const Multi = regl => {
   return regl({
     vert: `
@@ -23,7 +24,11 @@ const Multi = regl => {
   uniform float slope;
   //uniform float time;
 
+  ${Color.uniform}
+
   varying vec2 vUv;
+
+        ${Color.glsl}
 
   float chromaKeyAlphaTwoFloat(vec3 color, vec3 keyColor, float tolerance, float slope)
       {
@@ -36,6 +41,8 @@ const Multi = regl => {
   void main () {
     vec2 uv = vUv;
     vec3 color = texture2D(texture, vec2(1.-uv.x, uv.y)).rgb;
+
+    color = changeSaturation(color, uSaturation);
 
     float ff = max(
 
@@ -71,6 +78,7 @@ const Multi = regl => {
       texture: regl.prop("texture"),
       keyVideo: regl.prop("keyVideo"),
       keyColors: regl.prop("keyColors"),
+      uSaturation: regl.prop("uSaturation"),
       slope: regl.prop("slope"),
       tolerance: regl.prop("tolerance"),
     },

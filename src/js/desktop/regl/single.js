@@ -1,3 +1,4 @@
+import * as Color from './color-glsl'
 const Single = regl => {
   return regl({
     vert: `
@@ -19,12 +20,21 @@ const Single = regl => {
       precision lowp float;
       uniform int flipX;
       uniform sampler2D texture;
+
+        ${Color.uniform}
+
       varying vec2 vUv;
+
+        ${Color.glsl}
+
+
 
       void main () {
         vec2 uv = vUv;
         uv.x *= float(flipX);
-        gl_FragColor = vec4(texture2D(texture, uv).rgb,1);
+        vec3 color = texture2D(texture, uv).rgb;
+        color = changeSaturation(color, uSaturation);
+        gl_FragColor = vec4(color,1);
       }`,
     attributes: {
       position: [
@@ -63,6 +73,7 @@ const Single = regl => {
       ],
       projection: regl.context("projection"),
       flipX: regl.prop("flipX"),
+      uSaturation: regl.prop("uSaturation"),
       texture: regl.prop("texture"),
     },
   })

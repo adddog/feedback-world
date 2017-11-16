@@ -392,6 +392,7 @@ const Desktop = (webrtc, state, emitter) => {
           if (!Gui.rendering) return
           Gui.deviceOrien = data.payload
           if (data.payload.landscape) {
+            Gui.uSaturation = Math.abs(data.payload.gamma / 90)
             Gui.panner = {
               value: data.payload.alpha,
             }
@@ -681,8 +682,6 @@ const Desktop = (webrtc, state, emitter) => {
 
   addListeners()
   createCanvasStream()
-
-  console.log(webrtc)
 
   return {
     addListeners,
