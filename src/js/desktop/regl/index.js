@@ -4,6 +4,7 @@ import Regl from "regl"
 import mat4 from "gl-mat4"
 import ReglGeometryActions from "./regl-geometry-actions"
 import ReglGeometry from "./regl-geometry"
+import ReglMeshGeometry from "./regl-mesh-geometry"
 import SingleDraw from "./single"
 import MultiDraw from "./multi"
 import GUI from "../../common/gui"
@@ -22,6 +23,7 @@ const REGL = (canvas, assets) => {
   const multiDraw = MultiDraw(regl)
 
   const reglGeometry = ReglGeometry(regl)
+  const reglMeshGeometry = ReglMeshGeometry(regl)
   const textures = {}
 
   const filterMask0 = regl({
@@ -164,12 +166,24 @@ const REGL = (canvas, assets) => {
     })
   })
 
+  function drawMesh(mesh, modelM) {
+    setupCamera(() => {
+      regl.clear({
+        color: [0.1, 0.1, 0.1, 1],
+        depth: true,
+        stencil: false,
+      })
+      reglMeshGeometry.draw(mesh, modelM)
+    })
+  }
+
   //const data = new Uint8Array(WIDTH * HEIGHT * 4)
   function read() {
     return regl.read(new Uint8Array(WIDTH * HEIGHT * 4))
   }
 
   return {
+    drawMesh,
     drawKey,
     drawSingle,
     read,

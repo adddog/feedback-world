@@ -1,1 +1,1 @@
-export const FAR_Z = 20
+export const FAR_Z = 100

@@ -3,7 +3,7 @@ import fetchJsonp from "fetch-jsonp"
 import { IS_DEV, WIDTH, SERVER_URL } from "../common"
 import AuthService from "./auth"
 const PATH =
-  process.env.NODE_ENV === "development" ? "" : "feedback-rtc/"
+  process.env.NODE_ENV !== "development" ? "" : "feedback-rtc/"
 
 const Server = (() => {
   function upload(blob) {

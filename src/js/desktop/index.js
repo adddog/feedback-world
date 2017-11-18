@@ -1,7 +1,10 @@
 import uuid from "uuid"
+import { mat4 } from "gl-matrix"
+import QS from "query-string"
 import sono from "sono"
 import Socket from "../socket"
 import Regl from "./regl"
+import GeometryInteraction from "./geometry-interaction"
 import DesktopInteraction from "./interaction"
 import AppEmitter from "../common/emitter"
 import MSRecorder from "./mediaStreamRecorder"
@@ -12,7 +15,15 @@ import Recorder from "./soundRecorder"
 import Sound from "./sound"
 import Gui from "../common/gui"
 import Server from "../common/server"
-import { first,last, find, map, filter, flatten, compact } from "lodash"
+import {
+  first,
+  last,
+  find,
+  map,
+  filter,
+  flatten,
+  compact,
+} from "lodash"
 import { cover, contain } from "intrinsic-scale"
 import loop from "raf-loop"
 import {
@@ -320,19 +331,19 @@ const Desktop = (webrtc, state, emitter) => {
   }
 
   const slotIntoRenderingMedia = videoEl => {
-    const availableSlots = RENDERING_KEYS.filter(key=>!renderSettings[key].isReady)
+    const availableSlots = RENDERING_KEYS.filter(
+      key => !renderSettings[key].isReady
+    )
     const targetKey = first(availableSlots)
-    if(targetKey){
+    if (targetKey) {
       renderSettings[targetKey].isReady = true
       renderSettings[targetKey].el = videoEl
-      if(availableSlots.length === 1){
+      if (availableSlots.length === 1) {
         renderSettings.multi = true
-      }else{
+      } else {
         renderSettings.single = true
       }
     }
-
-    console.log(renderSettings);
   }
 
   const connectToOtherDesktop = peer => {
@@ -366,6 +377,16 @@ const Desktop = (webrtc, state, emitter) => {
   //**** MESSAGED
   //**************
 
+  const pp = {
+    x: 0,
+    y: 0,
+    z: 0,
+  }
+  const firstp = {
+    x: 0,
+    y: 0,
+    z: 0,
+  }
   function addListeners() {
     webrtc.connection.on("message", function(data) {
       switch (data.type) {
@@ -489,6 +510,14 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_DEVICE_MOTION: {
+          if (!firstp) {
+            firstp.x = data.payload.x
+            firstp.y = data.payload.y
+            firstp.z = data.payload.z
+          }
+          pp.x += data.payload.x
+          pp.y += data.payload.y
+          pp.z += data.payload.z
           if (!Gui.rendering) return
           Gui.deviceMotion = data.payload
           Gui.echo = {
@@ -513,6 +542,25 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_SCREEN_SIZE: {
+          break
+        }
+        case "local:mobile:mesh": {
+          if (pairedMobile.id === data.from) {
+            const icosphere = require("icosphere")(2)
+            const normals = require("angle-normals")
+            icosphere.normals = normals(
+              icosphere.cells,
+              icosphere.positions
+            )
+            const modelM = mat4.create()
+            mat4.rotateZ(modelM, modelM, Math.PI/2)
+            mat4.translate(modelM, modelM, [3, -4, -5])
+            //mat4.translate(modelM, modelM, [0, 1, -5])
+            console.log(data.payload)
+            setInterval(() => {
+              regl.drawMesh(data.payload, modelM)
+            }, 10)
+          }
           break
         }
       }
@@ -563,10 +611,12 @@ const Desktop = (webrtc, state, emitter) => {
     console.log(`foundPeer:`)
     console.log(JSON.stringify(foundPeer))
     console.log(`pairedMobile.id: ${pairedMobile.id}`)
-    console.log(`foundPeer dekstop: ${foundPeer.desktop}`)
-    console.log(
-      `foundPeer isPlayingMedia: ${foundPeer.isPlayingMedia}`
-    )
+    if (foundPeer) {
+      console.log(`foundPeer dekstop: ${foundPeer.desktop}`)
+      console.log(
+        `foundPeer isPlayingMedia: ${foundPeer.isPlayingMedia}`
+      )
+    }
 
     console.log(peer)
 
@@ -803,7 +853,7 @@ const Desktop = (webrtc, state, emitter) => {
   })
 
   Gui.on("connect", v => {
-    if (v) {
+    if (v && !QS.parse(location.search).norender) {
       Gui.rendering = true
       engine.start()
       logInfo("desktop: Connected")
@@ -813,8 +863,23 @@ const Desktop = (webrtc, state, emitter) => {
   addListeners()
   createCanvasStream()
 
-  console.log(webrtc)
+  const geoI = new GeometryInteraction(window)
+  let ppps = []
+  let i = setInterval(() => {
+    ppps.push(geoI.positions)
+  }, 100)
 
+  setTimeout(() => {
+    clearInterval(i)
+    ppps.shift()
+    const m = geoI.getGeometry(ppps)
+    console.log(m)
+    setInterval(() => {
+      //regl.drawMesh(m)
+    }, 100)
+    /*console.log(m)
+    console.log(ppps)*/
+  }, 5000)
   return {
     addListeners,
   }

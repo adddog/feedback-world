@@ -1,4 +1,5 @@
 import html from "choo/html"
+import QS from "query-string"
 import Component from "../common/component"
 import HomeRegl from "./home-regl"
 import { IS_DESKTOP, WIDTH, HEIGHT } from "../common"
@@ -95,7 +96,7 @@ module.exports = ({ store }, emit) => {
 
   return tree.render(
     treeHTML(),
-    IS_DESKTOP
+    (IS_DESKTOP && !QS.parse(location.search).norender)
       ? {
           onload: el => {
             startGfx(el)

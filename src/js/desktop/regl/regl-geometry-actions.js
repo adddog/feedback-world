@@ -19,7 +19,6 @@ const ReglGeometryActions = (() => {
 
   function add(geo, type, props) {
     const modelM = mat4.create([0, 0, 0])
-    console.log(props)
     mat4.translate(modelM, modelM, [
       (props.position.x * 2 - 1) * FAR_Z / 2,
       props.position.y * -1 * 2 - 1 * FAR_Z / 2,

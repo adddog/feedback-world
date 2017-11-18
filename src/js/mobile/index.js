@@ -1,4 +1,5 @@
 import Gui from "../common/gui"
+import Geometry from "./geometry"
 import Interaction from "./interaction"
 import Accelerometer from "../common/accelerometer"
 import {
@@ -34,13 +35,33 @@ const Mobile = (webrtc, state, emitter) => {
 
   const interaction = Interaction(webrtc)
   const accelerometer = Accelerometer()
+  const geometry = Geometry()
+  geometry.start()
+
+  let _a = 0
+  let _i = setInterval(() => {
+    /*accelerometer.handleMovment({
+      alpha: _a,
+      beta: 90,
+      gamma: 0,
+    })
+    _a += 1*/
+  }, 20)
 
   accelerometer.on("devicemotion", state => {
-    send(M_DEVICE_MOTION, state)
+    //send(M_DEVICE_MOTION, state)
+  })
+
+  accelerometer.on("rotationvector", data => {
+    console.log(data)
+    data[0] += geometry.geo.length * 0.1
+    data[1] += Math.sin(geometry.geo.length * 0.1) * 0.5
+    //data[2]= 0.5
+    geometry.push(data)
   })
 
   accelerometer.on("deviceorientation", state => {
-    if(state.landscape){
+    if (state.landscape) {
       state.alpha = -1 * state.alpha / ALPHA_SENS
     }
     send(M_DEVICE_ORIEN, state)
@@ -49,6 +70,15 @@ const Mobile = (webrtc, state, emitter) => {
   accelerometer.on("orientationchange", state => {
     //send(M_SCREEN_ORIEN, state)
   })
+
+  const pairedWithDesktop = () => {
+    setTimeout(() => {
+      const g = geometry.stop()
+      console.log(g)
+      send("local:mobile:mesh", g)
+      clearInterval(_i)
+    }, 6000)
+  }
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
   const sendChannel = (msg, payload) =>
@@ -98,7 +128,7 @@ const Mobile = (webrtc, state, emitter) => {
     webrtc.connection.on("message", function(data) {
       switch (data.type) {
         case "local:desktop:handshake": {
-          const { secret,uuid } = data.payload
+          const { secret, uuid } = data.payload
           logInfo(`From ${data.from}`)
           console.log(
             `Got handhsake from ${data.from} with secret: ${data.payload}`
@@ -131,7 +161,8 @@ const Mobile = (webrtc, state, emitter) => {
             desktopPeer.id = data.from
             desktopPeer.secret = data.payload
             console.log(`Got and saved secret ${data.payload}`)
-            send("local:mobile:secret:set", {id:desktopPeer.id})
+            send("local:mobile:secret:set", { id: desktopPeer.id })
+            pairedWithDesktop()
           }
           break
         }

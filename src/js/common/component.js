@@ -14,6 +14,7 @@ class InnerComponent extends Nanocomponent {
   }
 
   load(el) {
+    if(!this._cb) return
     if (this._cb.onload) {
       this._cb.onload(this.element)
     }
@@ -53,12 +54,14 @@ class Component extends Nanocomponent {
   }
 
   load(el) {
+    if(!this._cb) return
     if (this._cb.onload) {
       this._cb.onload(this.element)
     }
   }
 
   unload() {
+    if(!this._cb) return
       if (this._cb.unload) {
         this._cb.unload()
         this._cb = null
