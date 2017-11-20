@@ -1,6 +1,7 @@
 import AppEmitter from "../../common/emitter"
 import { FAR_Z } from "./constants"
 import Regl from "regl"
+import { vec3 } from "gl-matrix"
 import mat4 from "gl-mat4"
 import ReglGeometryActions from "./regl-geometry-actions"
 import ReglGeometry from "./regl-geometry"
@@ -27,6 +28,7 @@ const REGL = (canvas, assets) => {
   const textures = {}
 
   let deviceQuat = mat4.create()
+  let deviceAcceleration = vec3.create()
 
   const filterMask0 = regl({
     stencil: {
@@ -81,7 +83,8 @@ const REGL = (canvas, assets) => {
         )
       },
 
-      deviceQuat:deviceQuat,
+      deviceAcceleration: deviceAcceleration,
+      deviceQuat: deviceQuat,
 
       view: mat4.lookAt([], EYE, [0, 0, 0], [0, 1, 0]),
 
@@ -89,8 +92,18 @@ const REGL = (canvas, assets) => {
     },
   })
 
+  const setUniforms = () => {
+    vec3.set(
+      deviceAcceleration,
+      GUI.deviceMotion.x + 1,
+      GUI.deviceMotion.y + 1,
+      GUI.deviceMotion.z + 1
+    )
+  }
+
   function drawKey(assets) {
     if (updateTextures(assets)) {
+      setUniforms()
       setupCamera(() => {
         regl.clear({
           color: [0, 0, 0, 1],
@@ -101,7 +114,7 @@ const REGL = (canvas, assets) => {
           texture: textures.mobile,
           keyVideo: textures.keyVideo,
           keyColors: textures.keyColors,
-          uSaturation: GUI.uSaturation,
+          uSaturation: 1,// GUI.uSaturation,
           slope: GUI.slope,
           tolerance: GUI.tolerance,
         })
@@ -117,16 +130,9 @@ const REGL = (canvas, assets) => {
     ReglGeometryActions.add(sphere, "fly", props)
   })
 
-  //const modelB = mat4.scale(lightM, lightM, [0.2, 0.2, 0.2])
-  let _x = 0
-  let _z = 0
   function drawSingle(assets) {
     if (updateTextures(assets)) {
-      //_x += GUI.deviceOrien.alpha
-      _x = GUI.deviceOrien.alpha
-      /*_x += _x < 0 ? 0.001 : -0.001
-      _z += GUI.deviceMotion.z * -0.1*/
-      //_z += (_z < 0) ? 0.001 : -0.001
+      setUniforms()
       setupCamera(() => {
         regl.clear({
           color: [0, 0, 0, 1],
@@ -135,11 +141,11 @@ const REGL = (canvas, assets) => {
         })
         singleDraw({
           texture: textures.mobile,
-          uSaturation: GUI.uSaturation,
+          uSaturation: 1,//GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
-      //  ReglGeometryActions.update()
-        reglMeshGeometry.draw()
+        //  ReglGeometryActions.update()
+        reglMeshGeometry.draw({ texture: textures.mobile })
 
         //const lightM = mat4.create()
         /*reglGeometry.drawLight({
@@ -196,7 +202,7 @@ const REGL = (canvas, assets) => {
     })
   }
 
-  function setDeviceQuaternion(quat){
+  function setDeviceQuaternion(quat) {
     mat4.fromQuat(deviceQuat, quat)
   }
 

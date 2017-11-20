@@ -28,11 +28,11 @@ const Geometry = () => {
 
   function push(data) {
     data[0] +=
-     3*_geo.length * Math.min(Math.abs(_state.z), 1) * DEPTH
-    data[1] *= Y_AMP + _state.y //Math.sin(_geo.length * HEIGHT) * 0.5
-    data[2] *= Z_AMP + 20 * _state.x //Math.sin(_geo.length * HEIGHT) * 0.5
+      0.2 * _geo.length * Math.min(Math.abs(_state.z), 1) * DEPTH
+    data[1] *= Y_AMP +  _state.y //Math.sin(_geo.length * HEIGHT) * 0.5
+    data[2] *= Z_AMP +  _state.x //Math.sin(_geo.length * HEIGHT) * 0.5
     _geo.push(data)
-    if(_geo.length > 500){
+    if (_geo.length > 500) {
       _geo.length = 0
     }
   }

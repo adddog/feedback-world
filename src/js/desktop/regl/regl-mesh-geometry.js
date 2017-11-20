@@ -1,54 +1,109 @@
 import { FAR_Z, Z_SPEED, Z_AMP, Y_AMP } from "./constants"
 import Gui from "../../common/gui"
 import AppEmitter from "../../common/emitter"
-import { rotationMatrix } from "./color-glsl"
+import * as Color from './color-glsl'
+import { inverse,rotationMatrix } from "./glsl-utils"
 import mat4 from "gl-mat4"
 
 const ReglMeshGeometry = regl => {
   const _meshes = []
-  let _t = 0
 
-  function drawMesh({ mesh, model }) {
+  function drawMesh({ mesh, model }, props) {
     regl({
       vert: `
       #define PI 3.14159265359;
 
     precision lowp float;
     uniform mat4 projection, view, model, deviceQuat;
+    uniform vec3 deviceAcceleration;
     attribute vec3 position;
     attribute vec3 normal;
 
     varying vec3 vNormal;
     varying vec3 vPosition;
 
+    varying vec3    vEyePosition;
+    varying vec3    vWsNormal;
+    varying vec3    vWsPosition;
+
+      varying vec4    vDrawingCoord;
+
+      const mat4 biasMatrix = mat4( 0.5, 0.0, 0.0, 0.0,
+                0.0, 0.5, 0.0, 0.0,
+                0.0, 0.0, 0.5, 0.0,
+                0.5, 0.5, 0.5, 1.0 );
+
     ${rotationMatrix}
+    ${inverse}
 
     void main () {
-      vNormal = normal;
+      vec3 newPos = position;
+      //y mod
+      newPos.x *= cos(newPos.x * max(abs(deviceAcceleration.x),0.1)) * 0.5 + 0.5;
+
       float pi = PI;
       mat4 rotY = rotationMatrix( vec3(1.,1.,0.), pi / 2. + 0.8 );
       mat4 rotX = rotationMatrix( vec3(1.,0.,0.), pi / 2. );
-      vPosition = position;
-      gl_Position = projection * view * (model * rotY * rotX * deviceQuat) * vec4(position, 1);
+
+      mat4 modelTransformation = model * rotY * rotX * deviceQuat;
+
+      vec4 worldSpacePosition = modelTransformation * vec4(newPos, 1.0);
+      vec4 viewSpacePosition  = view * worldSpacePosition;
+
+      mat4 modelViewMatrixInverse = inverse(view * modelTransformation);
+
+      vWsPosition          = worldSpacePosition.xyz;
+
+      vec4 eyeDirViewSpace    = viewSpacePosition - vec4( 0, 0, 0, 1 );
+      vEyePosition            = -vec3( modelViewMatrixInverse * eyeDirViewSpace ).xyz;
+      vWsNormal               = normalize( modelViewMatrixInverse * vec4(vNormal,1.) ).xyz;
+
+      vDrawingCoord           = ( biasMatrix * (projection * view) * modelTransformation ) * vec4(newPos, 1.0);
+
+      vNormal = normal;
+      vPosition = newPos;
+
+      gl_Position = projection * view * modelTransformation * vec4(newPos, 1);
     }`,
 
       frag: `
     precision lowp float;
+
     varying vec3 vNormal;
     varying vec3 vPosition;
+    varying vec3    vEyePosition;
+    varying vec3    vWsNormal;
+    varying vec3    vWsPosition;
+    //varying vec2    vTextureCoord;
+    varying vec4    vDrawingCoord;
+
     uniform float ambientLightAmount;
     uniform float diffuseLightAmount;
 
-    uniform vec3 lightDir;
+    uniform sampler2D texture;
 
-    uniform vec3 color;
+    ${Color.uniform}
 
+    const float drawingBias     = .00005;
+
+    ${Color.glsl}
 
     void main () {
-      vec3 ambient = ambientLightAmount * color;
-      float cosTheta = dot(vNormal, lightDir);
-      vec3 diffuse = diffuseLightAmount * color * clamp(cosTheta , 0.0, 1.0 );
-      gl_FragColor = vec4((ambient + diffuse), 1.0);
+      vec4 drawingCoord = vDrawingCoord / vDrawingCoord.w;
+      drawingCoord.xy = mix(drawingCoord.xy, (drawingCoord.xy + normalize(vPosition*vWsNormal).gb ) / 2. + 0.5, 0.5);
+
+      const float drawingBias     = .00005;
+      vec4 colorDrawing = texture2DProj(texture, drawingCoord, drawingBias);
+
+      float cosTheta = dot(vNormal, vEyePosition);
+      float saturation = clamp(cosTheta, 0., 1.) * uSaturation;
+      vec3 finalColor = colorDrawing.rgb;
+      finalColor = changeSaturation(finalColor, saturation);
+      finalColor.r = fract(finalColor.r);
+      finalColor.g = fract(finalColor.g);
+      finalColor.b = fract(finalColor.b);
+
+      gl_FragColor = vec4(finalColor, 1.0);
     }`,
 
       uniforms: {
@@ -56,13 +111,12 @@ const ReglMeshGeometry = regl => {
         model: () => {
           return mat4.translate(model, model, [0, 0, Z_SPEED])
         },
+        texture: props.texture,
+        deviceAcceleration: regl.context("deviceAcceleration"),
         deviceQuat: regl.context("deviceQuat"),
         view: regl.context("view"),
         projection: regl.context("projection"),
-        ambientLightAmount: 0.6,
-        diffuseLightAmount: 0.3,
-        color: [0.2, 0.4, 0.11],
-        lightDir: [0.39, 0.87, 0.29],
+        uSaturation: 3.,
       },
 
       attributes: {
@@ -76,10 +130,10 @@ const ReglMeshGeometry = regl => {
 
   function add(mesh) {
     const modelMatrix = mat4.create()
-    const { landscape } = Gui.mobileDeviceOrientation
+    const { landscape } = Gui.deviceMotion
     mat4.translate(modelMatrix, modelMatrix, [
-      landscape ? Z_AMP / 2 - 10 : Z_AMP / 2,
-      landscape ? -Y_AMP / 2 - 20 : -Y_AMP / 2,
+      landscape ? -Y_AMP : Y_AMP / 2 - 20,
+      landscape ? -Z_AMP : -Z_AMP / 2 - 20,
       -FAR_Z,
     ])
     mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 2)
@@ -89,16 +143,22 @@ const ReglMeshGeometry = regl => {
       model: modelMatrix,
     }
     _meshes.push(meshObj)
+    /*
+    // LIMIT TO ONE
+    */
+    if(_meshes.length > 1){
+      _meshes.shift()
+    }
     return meshObj
   }
 
-  function draw() {
+  function draw(props) {
     _meshes.forEach((meshObj, i) => {
       if (meshObj.model[14] > FAR_Z / 2) {
         _meshes.splice(i, 1)
         AppEmitter.emit("regl:mesh:removed")
       } else {
-        drawMesh(meshObj)
+        drawMesh(meshObj, props)
       }
     })
   }

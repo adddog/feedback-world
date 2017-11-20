@@ -512,14 +512,14 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_DEVICE_MOTION: {
-          if (!firstp) {
+          /*if (!firstp) {
             firstp.x = data.payload.x
             firstp.y = data.payload.y
             firstp.z = data.payload.z
           }
           pp.x += data.payload.x
           pp.y += data.payload.y
-          pp.z += data.payload.z
+          pp.z += data.payload.z*/
           if (!Gui.rendering) return
           Gui.deviceMotion = data.payload
           Gui.echo = {
