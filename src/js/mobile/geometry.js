@@ -1,31 +1,47 @@
 import quad from "quads"
 import cylinder from "primitive-cylinder"
+import { Z_AMP, Y_AMP } from "../desktop/regl/constants"
+const FPS = 1000 / 9
+const Z = 2
+const DEPTH = 2
+const HEIGHT = 0.1
+
 const Geometry = () => {
   let _geo = []
-  let _started
-
-  function start(argument) {
-    // body...
-    _started = true
+  let _t = 0
+  let _state = {
+    x: 0,
+    y: 0,
+    z: 0,
   }
-  function stop(argument) {
-    _started = false
-    const mesh = cylinder(0.7, 0.7, 2, 6, _geo.length-1, _geo)
-    //cylinder(0.7, 0.7, 2, 6, points.length-1, points)
+
+  function getMesh() {
+    if (_geo.length < 5) return null
+    const mesh = cylinder(5, 5, 2, 6, _geo.length - 1, _geo)
     _geo.length = 0
     return mesh
   }
 
-  function push(quat) {
-    //if (!_started) return
-    _geo.push(quat)
+  function setAcceleration(state) {
+    _state = state
+  }
+
+  function push(data) {
+    data[0] +=
+     3*_geo.length * Math.min(Math.abs(_state.z), 1) * DEPTH
+    data[1] *= Y_AMP + _state.y //Math.sin(_geo.length * HEIGHT) * 0.5
+    data[2] *= Z_AMP + 20 * _state.x //Math.sin(_geo.length * HEIGHT) * 0.5
+    _geo.push(data)
+    if(_geo.length > 500){
+      _geo.length = 0
+    }
   }
 
   return {
     geo: _geo,
+    setAcceleration,
     push,
-    start,
-    stop,
+    getMesh,
   }
 }
 

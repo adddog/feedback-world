@@ -40,6 +40,9 @@ const o = observable({
     gamma:0,
   },
 
+  mobileDeviceOrientation:{
+    landscape:false
+  },
 
   started: false,
   connect: false,

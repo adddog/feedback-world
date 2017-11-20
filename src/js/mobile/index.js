@@ -36,29 +36,21 @@ const Mobile = (webrtc, state, emitter) => {
   const interaction = Interaction(webrtc)
   const accelerometer = Accelerometer()
   const geometry = Geometry()
-  geometry.start()
-
-  let _a = 0
-  let _i = setInterval(() => {
-    /*accelerometer.handleMovment({
-      alpha: _a,
-      beta: 90,
-      gamma: 0,
-    })
-    _a += 1*/
-  }, 20)
 
   accelerometer.on("devicemotion", state => {
-    //send(M_DEVICE_MOTION, state)
+    geometry.setAcceleration(state)
+    send(M_DEVICE_MOTION, state)
   })
 
   accelerometer.on("rotationvector", data => {
-    console.log(data)
-    data[0] += geometry.geo.length * 0.1
-    data[1] += Math.sin(geometry.geo.length * 0.1) * 0.5
-    //data[2]= 0.5
-    geometry.push(data)
+    if (isPaired) {
+      geometry.push(data)
+      //send("rotationvector", geometry.geo[geometry.geo.length - 1])
+    }
   })
+  accelerometer.on("device:quaternion", quaternion =>
+    send("local:mobile:quaternion", quaternion)
+  )
 
   accelerometer.on("deviceorientation", state => {
     if (state.landscape) {
@@ -68,16 +60,26 @@ const Mobile = (webrtc, state, emitter) => {
   })
 
   accelerometer.on("orientationchange", state => {
-    //send(M_SCREEN_ORIEN, state)
+    send(M_SCREEN_ORIEN, state)
   })
 
+  const sendMeshToDesktop = () => {
+    const mesh = geometry.getMesh()
+    if (!mesh) {
+      send("local:mobile:mesh:log", `No mesh!`)
+      setTimeout(() => {
+        send("local:mobile:mesh", mesh)
+      }, 3000)
+    } else {
+      send("local:mobile:mesh", mesh)
+    }
+  }
+
+  const isPaired = () => !!desktopPeer.id
+
   const pairedWithDesktop = () => {
-    setTimeout(() => {
-      const g = geometry.stop()
-      console.log(g)
-      send("local:mobile:mesh", g)
-      clearInterval(_i)
-    }, 6000)
+    sendMeshToDesktop()
+    accelerometer.handleOrientation()
   }
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
@@ -184,6 +186,10 @@ const Mobile = (webrtc, state, emitter) => {
             })
             emitter.emit("webrtc:connect", data.payload)
           }
+          break
+        }
+        case "local:desktop:request:mesh": {
+          sendMeshToDesktop()
           break
         }
       }

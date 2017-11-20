@@ -26,6 +26,8 @@ const REGL = (canvas, assets) => {
   const reglMeshGeometry = ReglMeshGeometry(regl)
   const textures = {}
 
+  let deviceQuat = mat4.create()
+
   const filterMask0 = regl({
     stencil: {
       enable: true,
@@ -79,6 +81,8 @@ const REGL = (canvas, assets) => {
         )
       },
 
+      deviceQuat:deviceQuat,
+
       view: mat4.lookAt([], EYE, [0, 0, 0], [0, 1, 0]),
 
       eye: EYE,
@@ -101,6 +105,7 @@ const REGL = (canvas, assets) => {
           slope: GUI.slope,
           tolerance: GUI.tolerance,
         })
+        reglMeshGeometry.draw()
         //ReglGeometryActions.update()
       })
     }
@@ -133,7 +138,8 @@ const REGL = (canvas, assets) => {
           uSaturation: GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
-        ReglGeometryActions.update()
+      //  ReglGeometryActions.update()
+        reglMeshGeometry.draw()
 
         //const lightM = mat4.create()
         /*reglGeometry.drawLight({
@@ -166,7 +172,9 @@ const REGL = (canvas, assets) => {
     })
   })
 
-  function drawMesh(mesh, modelM) {
+  function addMesh(mesh, modelM) {
+    return reglMeshGeometry.add(mesh)
+    /*reglMeshGeometry.
     setupCamera(() => {
       regl.clear({
         color: [0.1, 0.1, 0.1, 1],
@@ -174,7 +182,22 @@ const REGL = (canvas, assets) => {
         stencil: false,
       })
       reglMeshGeometry.draw(mesh, modelM)
+    })*/
+  }
+
+  function drawMeshes() {
+    setupCamera(() => {
+      regl.clear({
+        color: [0.1, 0.1, 0.1, 1],
+        depth: true,
+        stencil: false,
+      })
+      reglMeshGeometry.draw()
     })
+  }
+
+  function setDeviceQuaternion(quat){
+    mat4.fromQuat(deviceQuat, quat)
   }
 
   //const data = new Uint8Array(WIDTH * HEIGHT * 4)
@@ -183,9 +206,11 @@ const REGL = (canvas, assets) => {
   }
 
   return {
-    drawMesh,
+    addMesh,
     drawKey,
+    setDeviceQuaternion,
     drawSingle,
+    drawMeshes,
     read,
   }
 }

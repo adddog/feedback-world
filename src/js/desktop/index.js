@@ -274,6 +274,7 @@ const Desktop = (webrtc, state, emitter) => {
     pairedMobile.el = el
     pairedMobile.isReady = true
     addRenderingMedia(pairedMobile.el, "mainVideo")
+    send("local:desktop:request:mesh")
   }
 
   const setVideoToKey = el => {
@@ -507,6 +508,7 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case M_SCREEN_ORIEN: {
+          Gui.mobileDeviceOrientation = data.payload
           break
         }
         case M_DEVICE_MOTION: {
@@ -545,23 +547,22 @@ const Desktop = (webrtc, state, emitter) => {
           break
         }
         case "local:mobile:mesh": {
-          if (pairedMobile.id === data.from) {
-            const icosphere = require("icosphere")(2)
-            const normals = require("angle-normals")
-            icosphere.normals = normals(
-              icosphere.cells,
-              icosphere.positions
-            )
-            const modelM = mat4.create()
-            mat4.rotateZ(modelM, modelM, Math.PI/2)
-            mat4.translate(modelM, modelM, [3, -4, -5])
-            //mat4.translate(modelM, modelM, [0, 1, -5])
+          if (pairedMobile.id === data.from && data.payload) {
+            logInfo(`local:mobile:mesh received!`)
             console.log(data.payload)
-            setInterval(() => {
-              regl.drawMesh(data.payload, modelM)
-            }, 10)
+            regl.addMesh(data.payload)
           }
           break
+        }
+        case "local:mobile:quaternion": {
+          regl.setDeviceQuaternion(data.payload)
+          break
+        }
+        case "local:mobile:mesh:log": {
+          console.log(data.payload)
+        }
+        case "rotationvector": {
+          console.log(data.payload)
         }
       }
     })
@@ -735,8 +736,9 @@ const Desktop = (webrtc, state, emitter) => {
   //*************
 
   const engine = loop(function(dt) {
+    const p = performance.now()
     if (Gui.rendering) {
-      if (performance.now() - _timeCounter >= FPS_I) {
+      if (p - _timeCounter >= FPS_I) {
         if (renderSettings.multi) {
           regl.drawKey({
             mobile: {
@@ -773,10 +775,9 @@ const Desktop = (webrtc, state, emitter) => {
           record.addFrame(regl.read())
         }
 
-        _timeCounter = performance.now()
+        _timeCounter = p
       }
     }
-    _timeCounter++
   })
 
   //DEV
@@ -840,6 +841,11 @@ const Desktop = (webrtc, state, emitter) => {
     recordFinalStop()
   })
 
+  AppEmitter.on("regl:mesh:removed", () => {
+    logInfo(`Mesh removed, requesting a new one`)
+    send("local:desktop:request:mesh")
+  })
+
   AppEmitter.on("desktop:communcation", str =>
     send("local:desktop:message", str)
   )
@@ -873,7 +879,7 @@ const Desktop = (webrtc, state, emitter) => {
     clearInterval(i)
     ppps.shift()
     const m = geoI.getGeometry(ppps)
-    console.log(m)
+    //console.log(m)
     setInterval(() => {
       //regl.drawMesh(m)
     }, 100)

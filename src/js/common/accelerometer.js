@@ -1,6 +1,8 @@
 import loop from "raf-loop"
 import { vec3, mat3, quat } from "gl-matrix"
 
+const FPS = 1000 / 9
+
 const degToRad = degrees => degrees * (Math.PI / 180)
 const radToDeg = radians => radians * (180 / Math.PI)
 
@@ -189,6 +191,10 @@ const Accelerometer = (
     emit("orientationchange", { landscape, rotation })
   }
 
+  //*********
+
+  //*********
+
   const handleAcceleration = event => {
     const { landscape } = state
     const { useGravity, multiplier } = props
@@ -268,67 +274,40 @@ const Accelerometer = (
       landscape: state.landscape,
     })
 
-    const xRad = degToRad(e.beta)
-    const yRad = degToRad(e.gamma)
-    const zRad = degToRad(e.alpha)
-    vec3.set(euler, xRad, zRad, -yRad) //"YXZ"); // apply in YXZ rotation order
-    eulerToQuat(quaternion, euler)
-    //quat.fromEuler(quaternion, euler[0], euler[1], euler[2]) // orient the device
-    quat.multiply(quaternion, quaternion, CAMERA_ORIENTATION_Y)
-    vec3.set(rotationVector, 0, 0, 1)
-    applyQuatToVec3(rotationVector, quaternion)
-    applyQuatToVec3(rotationVector, CAMERA_ORIENTATION_Y)
-    applyMatrix3(rotationVector, Y_REFLECT_MATRIX)
+    const p = performance.now()
+    let _time = 0
+    const dis = p - _time > FPS
+    if (dis) {
+      const xRad = degToRad(e.beta)
+      const yRad = degToRad(e.gamma)
+      const zRad = degToRad(e.alpha)
+      vec3.set(euler, xRad, zRad, -yRad) //"YXZ"); // apply in YXZ rotation order
+      eulerToQuat(quaternion, euler)
+      //quat.fromEuler(quaternion, euler[0], euler[1], euler[2]) // orient the device
+      quat.multiply(quaternion, quaternion, CAMERA_ORIENTATION_Y)
+      vec3.set(rotationVector, 0, 0, 1)
+      applyQuatToVec3(rotationVector, quaternion)
+      applyQuatToVec3(rotationVector, CAMERA_ORIENTATION_Y)
+      applyMatrix3(rotationVector, Y_REFLECT_MATRIX)
 
-    const deviceOrientation = vector3ToPolar(rotationVector)
-    //to match the rotation on desktop
-    deviceOrientation.lon *= -1
-    deviceOrientation.lat -= 90
-    deviceOrientation.lat *= -1
+      const deviceOrientation = vector3ToPolar(rotationVector)
+      //to match the rotation on desktop
+      deviceOrientation.lon *= -1
+      deviceOrientation.lat -= 90
+      deviceOrientation.lat *= -1
 
-    /*const deviceOrientation = vector3ToPolar(
-      getCameraOrientation(e.beta, e.gamma, e.alpha)
-    )
-    //to match the rotation on desktop
-    deviceOrientation.lon *= -1
-    deviceOrientation.lat -= 90
-    deviceOrientation.lat *= -1
+      polarToVector3(
+        deviceOrientation.lon,
+        deviceOrientation.lat,
+        4,
+        rotationVector
+      )
 
-    //We need to use a difference and add this difference
-    this.orientationFrameDifference = {
-      lat: this.deviceOrientation.lat - deviceOrientation.lat,
-      lon: this.deviceOrientation.lon - deviceOrientation.lon,
-    }*/
+      emit("device:quaternion", quaternion)
+      emit("rotationvector", vec3.clone(rotationVector))
 
-    /*const xRad = degToRad(x);
-    const yRad = degToRad(y);
-    const zRad = degToRad(z);
-    const euler = new Euler(xRad, zRad, -yRad, "YXZ"); // apply in YXZ rotation order
-    const orientQuaternion = new Quaternion();
-
-    orientQuaternion.setFromEuler(euler); // Setup rotation vector from euler rotations
-    // adjust 90 deg neg around the x world axis
-    orientQuaternion.multiply(CAMERA_ORIENTATION_X);
-
-    const vec = new Vector3(0, 0, 1); // head aligned to z axis by default
-    vec.applyQuaternion(orientQuaternion);
-    // Rotate camera around the y axis 90 deg to make initial output equal
-    vec.applyQuaternion(CAMERA_ORIENTATION_Y);
-
-
-    // reflect the y coord so that phone forward means facing down
-    vec.applyMatrix3(Y_REFLECT_MATRIX);*/
-
-    //applyQuatToVec3(rotationVector, quaternion)
-
-    polarToVector3(
-      deviceOrientation.lon,
-      deviceOrientation.lat,
-      4,
-      rotationVector
-    )
-
-    emit("rotationvector", vec3.clone(rotationVector))
+      _time = p
+    }
   }
 
   const destroy = () => {
@@ -383,6 +362,7 @@ const Accelerometer = (
   return {
     state,
     handleMovment,
+    handleOrientation,
     on,
     off,
     destroy,

@@ -39,7 +39,7 @@ const WebRTC = (store, emitter) => {
 
     const webrtc = new SimpleWebRTC(
       {
-        //url: IS_DEV ? null : SERVER_URL,
+        url: IS_DEV ? SERVER_URL : SERVER_URL,
         /*socketio:{
           //path:"/ratp"
         },*/

@@ -1,27 +1,35 @@
-const normals = require("angle-normals")
+import { FAR_Z, Z_SPEED, Z_AMP, Y_AMP } from "./constants"
+import Gui from "../../common/gui"
+import AppEmitter from "../../common/emitter"
+import { rotationMatrix } from "./color-glsl"
 import mat4 from "gl-mat4"
 
 const ReglMeshGeometry = regl => {
-  const icosphere = require("icosphere")(2)
-  icosphere.normals = normals(icosphere.cells, icosphere.positions)
-  /*const modelM = mat4.create()
-  mat4.translate(modelM, modelM, [0, 0, -5])
-  mat4.rotateZ(modelM, modelM, Math.PI/2)*/
-  function drawMesh(mesh, modelMatrix) {
+  const _meshes = []
+  let _t = 0
+
+  function drawMesh({ mesh, model }) {
     regl({
       vert: `
+      #define PI 3.14159265359;
+
     precision lowp float;
-    uniform mat4 projection, view, model;
+    uniform mat4 projection, view, model, deviceQuat;
     attribute vec3 position;
     attribute vec3 normal;
 
     varying vec3 vNormal;
     varying vec3 vPosition;
 
+    ${rotationMatrix}
+
     void main () {
       vNormal = normal;
+      float pi = PI;
+      mat4 rotY = rotationMatrix( vec3(1.,1.,0.), pi / 2. + 0.8 );
+      mat4 rotX = rotationMatrix( vec3(1.,0.,0.), pi / 2. );
       vPosition = position;
-      gl_Position = projection * view * model * vec4(position, 1);
+      gl_Position = projection * view * (model * rotY * rotX * deviceQuat) * vec4(position, 1);
     }`,
 
       frag: `
@@ -46,10 +54,9 @@ const ReglMeshGeometry = regl => {
       uniforms: {
         // dynamic properties are invoked with the same `this` as the command
         model: () => {
-          mat4.rotateY(modelMatrix,modelMatrix, 0.01)
-          mat4.rotateX(modelMatrix,modelMatrix, 0.01)
-          return modelMatrix
+          return mat4.translate(model, model, [0, 0, Z_SPEED])
         },
+        deviceQuat: regl.context("deviceQuat"),
         view: regl.context("view"),
         projection: regl.context("projection"),
         ambientLightAmount: 0.6,
@@ -64,14 +71,40 @@ const ReglMeshGeometry = regl => {
       },
 
       elements: mesh.cells,
-    })({ mesh })
+    })()
   }
 
-  function draw(mesh, modelMatrix) {
-    return drawMesh(mesh, modelMatrix)
+  function add(mesh) {
+    const modelMatrix = mat4.create()
+    const { landscape } = Gui.mobileDeviceOrientation
+    mat4.translate(modelMatrix, modelMatrix, [
+      landscape ? Z_AMP / 2 - 10 : Z_AMP / 2,
+      landscape ? -Y_AMP / 2 - 20 : -Y_AMP / 2,
+      -FAR_Z,
+    ])
+    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 2)
+    //mat4.rotateX(modelMatrix, modelMatrix, Math.PI/2)
+    const meshObj = {
+      mesh,
+      model: modelMatrix,
+    }
+    _meshes.push(meshObj)
+    return meshObj
+  }
+
+  function draw() {
+    _meshes.forEach((meshObj, i) => {
+      if (meshObj.model[14] > FAR_Z / 2) {
+        _meshes.splice(i, 1)
+        AppEmitter.emit("regl:mesh:removed")
+      } else {
+        drawMesh(meshObj)
+      }
+    })
   }
 
   return {
+    add,
     draw,
   }
 }
