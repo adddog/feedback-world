@@ -296,10 +296,11 @@ const Accelerometer = (
       deviceOrientation.lat -= 90
       deviceOrientation.lat *= -1
 
+
       polarToVector3(
         deviceOrientation.lon,
         deviceOrientation.lat,
-        4,
+        4, //POLAR_RADIUS
         rotationVector
       )
 

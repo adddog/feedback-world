@@ -14,7 +14,7 @@ const ReglMeshGeometry = regl => {
       #define PI 3.14159265359;
 
     precision lowp float;
-    uniform mat4 projection, view, model, deviceQuat;
+    uniform mat4 projection, view, model, eyeMatrix;
     uniform vec3 deviceAcceleration;
     attribute vec3 position;
     attribute vec3 normal;
@@ -45,7 +45,7 @@ const ReglMeshGeometry = regl => {
       mat4 rotY = rotationMatrix( vec3(1.,1.,0.), pi / 2. + 0.8 );
       mat4 rotX = rotationMatrix( vec3(1.,0.,0.), pi / 2. );
 
-      mat4 modelTransformation = model * rotY * rotX * deviceQuat;
+      mat4 modelTransformation = model * rotY * rotX * eyeMatrix;
 
       vec4 worldSpacePosition = modelTransformation * vec4(newPos, 1.0);
       vec4 viewSpacePosition  = view * worldSpacePosition;
@@ -108,12 +108,10 @@ const ReglMeshGeometry = regl => {
 
       uniforms: {
         // dynamic properties are invoked with the same `this` as the command
-        model: () => {
-          return mat4.translate(model, model, [0, 0, Z_SPEED])
-        },
+        model: () => mat4.translate(model, model, [0, 0, Z_SPEED]),
         texture: props.texture,
         deviceAcceleration: regl.context("deviceAcceleration"),
-        deviceQuat: regl.context("deviceQuat"),
+        eyeMatrix: regl.context("eyeMatrix"),
         view: regl.context("view"),
         projection: regl.context("projection"),
         uSaturation: 3.,
@@ -128,20 +126,26 @@ const ReglMeshGeometry = regl => {
     })()
   }
 
-  function add(mesh) {
-    const modelMatrix = mat4.create()
-    const { landscape } = Gui.deviceMotion
-    mat4.translate(modelMatrix, modelMatrix, [
-      landscape ? -Y_AMP : Y_AMP / 2 - 20,
-      landscape ? -Z_AMP : -Z_AMP / 2 - 20,
-      -FAR_Z,
-    ])
-    mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 2)
+  function add(mesh, modelMatrix) {
+    if(!modelMatrix){
+      modelMatrix = mat4.create()
+      const { landscape } = Gui.mobileDeviceOrientation || {landscape:false}
+      console.log(`No modelMatrix passed. Is landscape: ${landscape}`);
+      mat4.translate(modelMatrix, modelMatrix, [
+        //Y AXIS
+        landscape ? -Y_AMP : Y_AMP / 2 - 20,
+        //X AXIS
+        landscape ? -Z_AMP : -Z_AMP / 2 - 20,
+        -FAR_Z,
+      ])
+      mat4.rotateZ(modelMatrix, modelMatrix, Math.PI / 2)
+    }
     //mat4.rotateX(modelMatrix, modelMatrix, Math.PI/2)
     const meshObj = {
       mesh,
       model: modelMatrix,
     }
+    console.log(meshObj);
     _meshes.push(meshObj)
     /*
     // LIMIT TO ONE

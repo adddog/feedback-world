@@ -156,6 +156,8 @@ const Desktop = (webrtc, state, emitter) => {
   const instagram = Instagram(videoEl)
   const sound = Sound()
   const record = Record()
+  const geoInteraction = new GeometryInteraction(window)
+  geoInteraction.on('mousemove',()=>regl.setDesktopEyeMatrix(geoInteraction.lookAt))
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
   const sendChannel = (msg, payload) =>
@@ -274,6 +276,7 @@ const Desktop = (webrtc, state, emitter) => {
     pairedMobile.el = el
     pairedMobile.isReady = true
     addRenderingMedia(pairedMobile.el, "mainVideo")
+    geoInteraction.enable(false)
     send("local:desktop:request:mesh")
   }
 
@@ -549,13 +552,12 @@ const Desktop = (webrtc, state, emitter) => {
         case "local:mobile:mesh": {
           if (pairedMobile.id === data.from && data.payload) {
             logInfo(`local:mobile:mesh received!`)
-            console.log(data.payload)
             regl.addMesh(data.payload)
           }
           break
         }
         case "local:mobile:quaternion": {
-          regl.setDeviceQuaternion(data.payload)
+          regl.setEyeMatrixDeviceQuaternion(data.payload)
           break
         }
         case "local:mobile:mesh:log": {
@@ -844,6 +846,7 @@ const Desktop = (webrtc, state, emitter) => {
   AppEmitter.on("regl:mesh:removed", () => {
     logInfo(`Mesh removed, requesting a new one`)
     send("local:desktop:request:mesh")
+    regl.addMesh(geoInteraction.getGeometry(), geoInteraction.modelMatrix)
   })
 
   AppEmitter.on("desktop:communcation", str =>
@@ -869,23 +872,6 @@ const Desktop = (webrtc, state, emitter) => {
   addListeners()
   createCanvasStream()
 
-  const geoI = new GeometryInteraction(window)
-  let ppps = []
-  let i = setInterval(() => {
-    ppps.push(geoI.positions)
-  }, 100)
-
-  setTimeout(() => {
-    clearInterval(i)
-    ppps.shift()
-    const m = geoI.getGeometry(ppps)
-    //console.log(m)
-    setInterval(() => {
-      //regl.drawMesh(m)
-    }, 100)
-    /*console.log(m)
-    console.log(ppps)*/
-  }, 5000)
   return {
     addListeners,
   }

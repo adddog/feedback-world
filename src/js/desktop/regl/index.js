@@ -27,7 +27,7 @@ const REGL = (canvas, assets) => {
   const reglMeshGeometry = ReglMeshGeometry(regl)
   const textures = {}
 
-  let deviceQuat = mat4.create()
+  let eyeMatrix = mat4.create()
   let deviceAcceleration = vec3.create()
 
   const filterMask0 = regl({
@@ -83,12 +83,10 @@ const REGL = (canvas, assets) => {
         )
       },
 
-      deviceAcceleration: deviceAcceleration,
-      deviceQuat: deviceQuat,
+      deviceAcceleration: () => deviceAcceleration,
+      eyeMatrix: () => eyeMatrix,
 
       view: mat4.lookAt([], EYE, [0, 0, 0], [0, 1, 0]),
-
-      eye: EYE,
     },
   })
 
@@ -114,11 +112,11 @@ const REGL = (canvas, assets) => {
           texture: textures.mobile,
           keyVideo: textures.keyVideo,
           keyColors: textures.keyColors,
-          uSaturation: 1,// GUI.uSaturation,
+          uSaturation: 1, // GUI.uSaturation,
           slope: GUI.slope,
           tolerance: GUI.tolerance,
         })
-        reglMeshGeometry.draw()
+        reglMeshGeometry.draw({ texture: textures.mobile })
         //ReglGeometryActions.update()
       })
     }
@@ -141,7 +139,7 @@ const REGL = (canvas, assets) => {
         })
         singleDraw({
           texture: textures.mobile,
-          uSaturation: 1,//GUI.uSaturation,
+          uSaturation: 1, //GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
         //  ReglGeometryActions.update()
@@ -178,17 +176,9 @@ const REGL = (canvas, assets) => {
     })
   })
 
-  function addMesh(mesh, modelM) {
-    return reglMeshGeometry.add(mesh)
-    /*reglMeshGeometry.
-    setupCamera(() => {
-      regl.clear({
-        color: [0.1, 0.1, 0.1, 1],
-        depth: true,
-        stencil: false,
-      })
-      reglMeshGeometry.draw(mesh, modelM)
-    })*/
+  function addMesh(mesh, modelMatrix) {
+    if (!mesh) return
+    reglMeshGeometry.add(mesh, modelMatrix)
   }
 
   function drawMeshes() {
@@ -202,8 +192,12 @@ const REGL = (canvas, assets) => {
     })
   }
 
-  function setDeviceQuaternion(quat) {
-    mat4.fromQuat(deviceQuat, quat)
+  function setEyeMatrixDeviceQuaternion(quat) {
+    eyeMatrix = mat4.fromQuat(eyeMatrix, quat)
+  }
+
+  function setDesktopEyeMatrix(matrix) {
+    eyeMatrix = mat4.clone(matrix)
   }
 
   //const data = new Uint8Array(WIDTH * HEIGHT * 4)
@@ -214,7 +208,8 @@ const REGL = (canvas, assets) => {
   return {
     addMesh,
     drawKey,
-    setDeviceQuaternion,
+    setEyeMatrixDeviceQuaternion,
+    setDesktopEyeMatrix,
     drawSingle,
     drawMeshes,
     read,

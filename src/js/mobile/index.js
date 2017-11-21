@@ -91,7 +91,7 @@ const Mobile = (webrtc, state, emitter) => {
       width: window.innerWidth,
       height: window.innerHeight,
     })
-    //send(M_SCREEN_ORIEN, screen.orientation)
+    send(M_SCREEN_ORIEN, screen.orientation)
   }
 
   const secretHandshake = () => {

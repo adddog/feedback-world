@@ -1,6 +1,7 @@
 import quad from "quads"
 import cylinder from "primitive-cylinder"
 import { Z_AMP, Y_AMP } from "../desktop/regl/constants"
+const MAX_POINTS = 500
 const FPS = 1000 / 9
 const Z = 2
 const DEPTH = 2
@@ -32,7 +33,7 @@ const Geometry = () => {
     data[1] *= Y_AMP +  _state.y //Math.sin(_geo.length * HEIGHT) * 0.5
     data[2] *= Z_AMP +  _state.x //Math.sin(_geo.length * HEIGHT) * 0.5
     _geo.push(data)
-    if (_geo.length > 500) {
+    if (_geo.length > MAX_POINTS) {
       _geo.length = 0
     }
   }
