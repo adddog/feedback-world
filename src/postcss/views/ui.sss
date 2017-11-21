@@ -1,37 +1,6 @@
+@import "./ui-header.sss"
 @import "./ui-tooltip.sss"
 @import "./ui-media.sss"
-
-%hideTransitionIn
-  transition: transform 0.3s easeInSine 0.3s
-
-%hideTransitionOut
-  transition: transform 0.3s easeOutSine
-
-.ui-header
-  position: absolute
-  top: 0
-  left: 0
-  width: 100%
-  @extend %hideTransitionOut
-  font-family: $ffSmall
-  &.hide
-    @extend %hideTransitionIn
-    transform: translateY(-100%)
-  h1
-    color: $cWhite
-    padding-left: 10px
-    font-size: $fsSmaller
-    text-shadow: 1px 1px 1px #111
-    span
-      font-size: calc($fsSmaller / 1.2)
-
-.ui-header-items
-  position: relative
-  width: 100%
-  display: flex
-  flex-direction: row
-  align-items: flex-start
-  justify-content: space-between
 
 .ui-footer
   position: absolute

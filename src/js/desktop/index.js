@@ -49,6 +49,7 @@ import {
   numberDesktops,
   logError,
   logInfo,
+  logInfoB,
   logSuccess,
   postMsg,
   createVideoElFromStream,
@@ -65,6 +66,10 @@ const Desktop = (webrtc, state, emitter) => {
     uuid: webrtc.config.nick.uuid,
   }
 
+  const remoteDesktopPeer = {
+    peer: null,
+    id: null,
+  }
   const remoteDesktopVideo = {
     isReady: false,
     el: null,
@@ -157,7 +162,9 @@ const Desktop = (webrtc, state, emitter) => {
   const sound = Sound()
   const record = Record()
   const geoInteraction = new GeometryInteraction(window)
-  geoInteraction.on('mousemove',()=>regl.setDesktopEyeMatrix(geoInteraction.lookAt))
+  geoInteraction.on("mousemove", () =>
+    regl.setDesktopEyeMatrix(geoInteraction.lookAt)
+  )
 
   const send = (msg, payload) => webrtc.sendToAll(msg, payload)
   const sendChannel = (msg, payload) =>
@@ -239,7 +246,9 @@ const Desktop = (webrtc, state, emitter) => {
   const createCanvasStream = () => {
     const stream = canvasEl.captureStream(FPS)
     webrtc.webrtc.localStreams.unshift(stream)
-    toggleMediaStream(false)
+    console.log(stream);
+    //toggleMediaStream(false)
+    logSuccess(`Created canvas stream (createCanvasStream) ${stream.id}. localStreams length: ${webrtc.webrtc.localStreams.length}`)
     /*const v = document.createElement("video")
     v.width = WIDTH
     v.height = HEIGHT
@@ -251,12 +260,14 @@ const Desktop = (webrtc, state, emitter) => {
   const cancelStream = stream => {
     if (!stream) return
     stream.getTracks().forEach(track => track.stop())
+    logError(`cancelStream ${stream.id}`)
   }
 
   const cancelStreamFromPeer = peer => {
     if (!peer) return
     if (!peer.stream) return
     cancelStream(peer.stream)
+    logError(`cancelStreamFromPeer ${peer.id}`)
   }
 
   const stopWebcam = () => {
@@ -350,8 +361,11 @@ const Desktop = (webrtc, state, emitter) => {
     }
   }
 
-  const connectToOtherDesktop = peer => {
+  const connectToOtherDesktop = (peer,id) => {
     if (!peer) return
+    remoteDesktopPeer.peer = peer
+    remoteDesktopPeer.id = id || peer.id
+    logSuccess(`connectToOtherDesktop ${remoteDesktopPeer.id}`)
   }
 
   //***************
@@ -408,15 +422,18 @@ const Desktop = (webrtc, state, emitter) => {
               isPlayingMedia: isPlayingMedia,
               id: data.from,
             })
+            logInfo(`Set peer ${data.from}`)
           }
 
           const numDesktops = numberDesktops(peerIds.values())
+
           logInfo(`numDesktops ${numDesktops}`)
 
           interaction.addKeyboardCommunication()
 
-          if (numDesktops >= 1 && pairedMobile.id) {
-            connectToOtherDesktop(findPeer(peers.values(), data.from))
+          if(numDesktops){
+            const foundPeer = findPeer(peerIds.values(), data.from)
+            connectToOtherDesktop(foundPeer, data.from)
           }
 
           break
@@ -560,6 +577,14 @@ const Desktop = (webrtc, state, emitter) => {
           regl.setEyeMatrixDeviceQuaternion(data.payload)
           break
         }
+        case "local:desktop:gl": {
+          if (remoteDesktopPeer.id) {
+            Gui.remoteDesktopGL = data.payload
+          }
+          break
+        }
+
+        //*** DEBUG
         case "local:mobile:mesh:log": {
           console.log(data.payload)
         }
@@ -580,29 +605,35 @@ const Desktop = (webrtc, state, emitter) => {
     })
 
   webrtc.on("createdPeer", peer => {
-    console.log("Found peer!")
+    console.log(`Found peer! ${peer.id}`)
     peers.add(peer)
+
+    console.log(peer)
 
     sendHandshake()
 
-    logInfo(`createdPeer: sent localsecret ${pairedMobile.secret}`)
+    logInfo(`createdPeer: sent localsecret (pairedMobile.secret:  ${pairedMobile.secret} )`)
   })
 
   webrtc.on("leftRoom", roomId => {
     reset()
     peerIds.clear()
     peers.clear()
-    webrtc.stopLocalVideo()
   })
 
   webrtc.on("peerRemoved", peer => {
     peers.delete(peer)
+    cancelStreamFromPeer(peer)
+    console.log(`Peer left ${peer.id}`)
     if (pairedMobile.id === peer.id) {
+      console.log(`Mobile left ${peer.id}`)
       reset()
     }
   })
 
-  webrtc.on("videoRemoved", (videoEl, peer) => {})
+  webrtc.on("videoRemoved", (videoEl, peer) => {
+    logInfoB(`videoRemoved ${peer.id}`)
+  })
 
   webrtc.on("videoAdded", function(video, peer) {
     video.setAttribute("crossorigin", "anonymous")
@@ -644,7 +675,8 @@ const Desktop = (webrtc, state, emitter) => {
       /*if (webcam.started) {
         setPairedMobileReady(videoEl)
       }*/
-      toggleMediaStream(true)
+      connectToOtherDesktop(peer, peer.id)
+      //toggleMediaStream(true)
       setTimeout(() => {
         setRemoteDesktopStream(peer.videoEl)
       }, FUDGE_VIDEO_DELAY)
@@ -846,7 +878,10 @@ const Desktop = (webrtc, state, emitter) => {
   AppEmitter.on("regl:mesh:removed", () => {
     logInfo(`Mesh removed, requesting a new one`)
     send("local:desktop:request:mesh")
-    regl.addMesh(geoInteraction.getGeometry(), geoInteraction.modelMatrix)
+    regl.addMesh(
+      geoInteraction.getGeometry(),
+      geoInteraction.modelMatrix
+    )
   })
 
   AppEmitter.on("desktop:communcation", str =>
@@ -869,8 +904,18 @@ const Desktop = (webrtc, state, emitter) => {
     }
   })
 
+  const updatePeersOfGL = () =>
+    send("local:desktop:gl", {
+      tolerance: Gui.tolerance,
+      slope: Gui.slope,
+    })
+  Gui.on("tolerance", v => updatePeersOfGL())
+  Gui.on("slope", v => updatePeersOfGL())
+
   addListeners()
   createCanvasStream()
+
+  logSuccess(`STARTED A NEW DESKTOP SESSION`)
 
   return {
     addListeners,

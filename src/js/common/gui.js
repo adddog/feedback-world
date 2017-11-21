@@ -40,6 +40,11 @@ const o = observable({
     gamma:0,
   },
 
+  remoteDesktopGL:{
+    tolerance:0,
+    slope:0,
+  },
+
   mobileDeviceOrientation:{
     landscape:false
   },

@@ -6,10 +6,12 @@ import { map } from "lodash"
 
 const error = tiza.color("red").text
 const info = tiza.bold().bgColor("yellow").text
+const infoB = tiza.bold().bgColor("blue").text
 const success = tiza.bold().bgColor("#ABEDD1").text
 
 export const logError = str => tiza.log(error(str))
 export const logInfo = str => tiza.log(info(str))
+export const logInfoB = str => tiza.log(infoB(str))
 export const logSuccess = str => tiza.log(success(str))
 
 let _msgTo

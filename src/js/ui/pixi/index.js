@@ -1,24 +1,26 @@
 import "pixi.js"
 import {
   WIDTH,
+  BAR_HEIGHT,
   HEIGHT,
   HEADER_HEIGHT,
   ORANGE,
   BLUE,
   WHITE,
 } from "./constants"
-import Peers from "./peers"
+import MixBars from "./mix-bars"
 import AppEmitter from "common/emitter"
 import Gui from "common/gui"
 
 const Pixi = (state, emitter, parentEl) => {
-  const stage = new PIXI.Container()
-
-  const renderer = new PIXI.CanvasRenderer({
-    width: WIDTH,
-    height: HEIGHT,
+  const app = new PIXI.Application(WIDTH, HEIGHT, {
     transparent: true,
+    autoStart: false,
+    forceCanvas: true,
   })
+  parentEl.appendChild(app.view)
+
+  const renderer = app.renderer
 
   const mix = [Gui.tolerance, Gui.slope]
 
@@ -27,19 +29,20 @@ const Pixi = (state, emitter, parentEl) => {
     if (n < 0) {
       n = 1 - Math.abs(n)
       Gui.tolerance = mix[0] = n
-    }else{
+    } else {
       Gui.slope = mix[1] = n
     }
-    drawMixingBars(mix)
+    mixingBar.update(mix, { width: WIDTH, height: BAR_HEIGHT, y: 0 })
+    render()
   })
 
   parentEl.appendChild(renderer.view)
 
-  const recordBar = new PIXI.Graphics()
-  const mixingBar = new PIXI.Graphics()
+  const recordBar = new MixBars(app.stage, renderer)
+  const mixingBar = new MixBars(app.stage, renderer)
+  const mixingBarRemote = new MixBars(app.stage, renderer)
 
-  stage.addChild(recordBar)
-  stage.addChild(mixingBar)
+  const render = () => app.renderer.render(app.stage)
 
   const updateRecordBar = p => {
     // set a fill and a line style again and draw a rectangle
@@ -51,43 +54,19 @@ const Pixi = (state, emitter, parentEl) => {
     renderer.render(recordBar)
   }
 
-  const drawMixingBars = vals => {
-    mixingBar.clear()
-    mixingBar.beginFill(WHITE, 1)
-    mixingBar.drawRect(0, 0, WIDTH / 2 * vals[0], 20)
-    mixingBar.endFill()
-    mixingBar.beginFill(BLUE, 1)
-    mixingBar.drawRect(WIDTH / 2, 0, WIDTH / 2 * vals[1], 20)
-    mixingBar.endFill()
-    mixingBar.moveTo(0, 0)
-    mixingBar.lineStyle(1, BLUE, 1)
-    mixingBar.lineTo(WIDTH, 0)
-    mixingBar.lineTo(WIDTH, HEIGHT)
-    mixingBar.lineTo(0, HEIGHT)
-    mixingBar.lineTo(0, 0)
-
-    renderer.render(mixingBar)
-  }
-
-  setInterval(() => {
-    //drawMixingBars([Math.random(), Math.random()])
-    //updateRecordBar(Math.random())
-  }, 200)
-
-  /*AppEmitter.on("mousemove", ({ y }) => {
-    if (y > HEIGHT - HEADER_HEIGHT) {
-      parentEl.classList.remove("no-interaction")
-    } else {
-      parentEl.classList.add("no-interaction")
-    }
-  })*/
-
   Gui.on("recordProgress", v => updateRecordBar(v))
-
-  //const peerGraphics = Peers(state, emitter, {stage, renderer})
+  Gui.on("remoteDesktopGL", ({ tolerance, slope }) => {
+    mixingBarRemote.update([tolerance, slope], {
+      width: WIDTH,
+      height: BAR_HEIGHT * .5,
+      y: BAR_HEIGHT * 1.5,
+      alpha: 0.7,
+    })
+    render()
+  })
 
   return {
-    stage,
+    stage: app.stage,
     renderer,
   }
 }

@@ -1,4 +1,5 @@
-export const HEIGHT = 20
+export const HEIGHT = 50
+export const BAR_HEIGHT = 20
 export const WIDTH = 360
 export const HEADER_HEIGHT = 20
 export const ORANGE = 0xff700b

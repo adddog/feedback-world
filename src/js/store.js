@@ -73,6 +73,10 @@ const WebRTC = (store, emitter) => {
       { mirror: false }
     )
 
+    console.log("***");
+    console.log(webrtc.config.nick);
+    console.log("***");
+
     const desktop = Desktop(webrtc, store, emitter)
     const mobile = Mobile(webrtc, store, emitter)
     const ui = UI(store, emitter)
