@@ -1,8 +1,8 @@
 import html from "choo/html"
-import Component from "../common/component"
-import Gui from "../common/gui"
-import AppEmitter from "../common/emitter"
-import { IS_MOBILE } from "../common"
+import { IS_MOBILE } from "common/constants"
+import Component from "common/component"
+import Gui from "common/gui"
+import AppEmitter from "common/emitter"
 
 module.exports = ({ store }, emit, emitter) => {
   if (!store.room.created) return null
@@ -60,6 +60,9 @@ module.exports = ({ store }, emit, emitter) => {
     </section>
   `
 
+  //***
+  // HEADR
+  //***
   const renderHeader = (data = {}) =>
     header.render(headerHTML(data), "ui-header")
 
@@ -67,6 +70,10 @@ module.exports = ({ store }, emit, emitter) => {
     renderHeader({ id: v })
   })
 
+
+  //***
+  // APP MESSAGES
+  //***
   const renderAppMessages = (data = {}) =>
     messages.render(appMessagesHTML(data), "ui-messages")
 
@@ -83,6 +90,10 @@ module.exports = ({ store }, emit, emitter) => {
       class: "ui-messages--info",
     })
   )
+
+  //***
+  // COMM TYPING
+  //***
 
   let _commData = {
     you: "",

@@ -1,6 +1,6 @@
 import html from "choo/html"
-import Component from "../common/component"
-import { IS_MOBILE } from "../common"
+import Component from "common/component"
+import { IS_MOBILE } from "common/constants"
 
 module.exports = ({store}, emit) => {
   emit("log:debug", "Rendering Room")

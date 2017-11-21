@@ -1,6 +1,6 @@
 import observable from "proxy-observable"
-import { IS_DEV,IS_PROD } from "./index"
-import Server from "./server"
+import { IS_DEV,IS_PROD } from "common/constants"
+import Server from "common/server"
 const dat = require("dat.gui/build/dat.gui.js")
 
 const o = observable({

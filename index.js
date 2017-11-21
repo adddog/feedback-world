@@ -1,1 +1,1 @@
-import App from './src/js/app'
+import App from 'app'

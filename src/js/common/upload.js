@@ -1,5 +1,5 @@
 import "whatwg-fetch"
-import { SERVER_URL } from "./index"
+import { SERVER_URL } from "common/constants"
 
 const Upload = (() => {
   function start(blob) {

@@ -1,5 +1,5 @@
-import Gui from "../common/gui"
-import { videoSettings } from "../common"
+import Gui from "common/gui"
+import { videoSettings } from "common/constants"
 const Webcam = webrtc => {
   let _stream
   function start() {

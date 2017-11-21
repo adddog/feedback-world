@@ -1,6 +1,6 @@
 import Regl from "regl"
 import { cover } from "intrinsic-scale"
-import { WIDTH, HEIGHT } from "../common"
+import { WIDTH, HEIGHT } from "common/constants"
 const mouse = require("mouse-change")()
 
 const REGL = el => {

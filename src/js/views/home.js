@@ -1,8 +1,8 @@
 import html from "choo/html"
 import QS from "query-string"
-import Component from "../common/component"
+import Component from "common/component"
 import HomeRegl from "./home-regl"
-import { IS_DESKTOP, WIDTH, HEIGHT } from "../common"
+import { IS_DESKTOP, WIDTH, HEIGHT } from "common/constants"
 var bel = require("bel")
 
 const renderText = () =>

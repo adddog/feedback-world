@@ -1,6 +1,6 @@
 import "whatwg-fetch"
 import fetchJsonp from "fetch-jsonp"
-import { IS_DEV, WIDTH, SERVER_URL } from "../common"
+import { IS_DEV, WIDTH, SERVER_URL } from "common/constants"
 import AuthService from "./auth"
 const PATH =
   process.env.NODE_ENV === "development" ? "" : "feedback-rtc/"

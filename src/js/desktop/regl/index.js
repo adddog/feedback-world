@@ -1,4 +1,6 @@
-import AppEmitter from "../../common/emitter"
+import AppEmitter from "emitter"
+import GUI from "common/gui"
+import { WIDTH, HEIGHT, logError } from "common/constants"
 import { FAR_Z } from "./constants"
 import Regl from "regl"
 import { vec3 } from "gl-matrix"
@@ -8,8 +10,6 @@ import ReglGeometry from "./regl-geometry"
 import ReglMeshGeometry from "./regl-mesh-geometry"
 import SingleDraw from "./single"
 import MultiDraw from "./multi"
-import GUI from "../../common/gui"
-import { WIDTH, HEIGHT, logError } from "../../common"
 import { find, map, isEmpty, compact } from "lodash"
 
 const REGL = (canvas, assets) => {

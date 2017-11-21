@@ -1,8 +1,8 @@
 import { autobind } from "core-decorators"
-import AppEmitter from "../common/emitter"
+import AppEmitter from "common/emitter"
 import { random, throttle } from "lodash"
 import EaseNumber from "./ease-number"
-import { POLAR_RADIUS, FAR_Z } from "./regl/constants"
+import { POLAR_RADIUS, FAR_Z } from "./constants"
 import cylinder from "primitive-cylinder"
 import { vec3, quat, mat4 } from "gl-matrix"
 

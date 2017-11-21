@@ -1,4 +1,10 @@
 {
   presets: [ "es2015","stage-0","stage-1","stage-2" ],
-  "plugins": ["transform-decorators-legacy","transform-async-to-generator"]
+  "plugins": [
+  "transform-decorators-legacy",
+  "transform-async-to-generator",
+   ["module-resolver", {
+      "root": ["./src/js"]
+    }]
+  ]
 }

@@ -1,5 +1,5 @@
-import Gui from "./gui"
-import Detector from "./detector"
+import Gui from "common/gui"
+import Detector from "common/detector"
 import colors from "nice-color-palettes"
 import tiza from "tiza"
 import { map } from "lodash"
@@ -35,7 +35,6 @@ export const videoSettings = {
 }
 
 export const COLOR_P = process.env.NODE_ENV === "production"
-console.log("process.env.NODE_ENV",process.env.NODE_ENV);
 export const IS_PROD = process.env.NODE_ENV === "production"
 export const IS_STAGE = process.env.NODE_ENV === "stage"
 export const IS_DEV = process.env.NODE_ENV === "development"

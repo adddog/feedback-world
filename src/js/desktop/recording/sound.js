@@ -2,12 +2,12 @@ import MediaStreamRecorder from "msr"
 import sono from "sono"
 import "sono/utils/recorder"
 import "sono/utils/microphone"
-import AppEmitter from "../common/emitter"
+import AppEmitter from "common/emitter"
 import Effects from "sono/effects"
-import Gui from "../common/gui"
+import Gui from "common/gui"
 import Recorder from "./soundRecorder"
 import MSRecorder from "./mediaStreamRecorder"
-import { AUDIO_EXP, AUDIO_EXP_TYPE, MAX_RECORD_TIME } from "../common"
+import { AUDIO_EXP, AUDIO_EXP_TYPE, MAX_RECORD_TIME } from "common/constants"
 
 const Sound = () => {
   let _started = false

@@ -1,4 +1,3 @@
-
 class EaseNumber {
     constructor(mValue, mEasing = 0.1) {
         this.easing       = mEasing;

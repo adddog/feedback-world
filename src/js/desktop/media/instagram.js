@@ -1,7 +1,7 @@
-import { videoSettings } from "../common"
-import AppEmitter from "../common/emitter"
+import AppEmitter from "common/emitter"
+import { videoSettings } from "common/constants"
 import { sample } from "lodash"
-import Server from "../common/server"
+import Server from "common/server"
 const Instagram = videoEl => {
   videoEl.setAttribute("crossorigin", "anonymous")
   videoEl.setAttribute("muted", true)

@@ -1,5 +1,5 @@
-import Gui from "../common/gui"
-import { WIDTH, HEIGHT, FPS, AUDIO_EXP } from "../common"
+import Gui from "common/gui"
+import { WIDTH, HEIGHT, FPS, AUDIO_EXP } from "common/constants"
 const Record = () => {
   const recordStop = () => {}
   const frames = []
