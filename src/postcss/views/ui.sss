@@ -1,3 +1,5 @@
+@import "./ui-tooltip.sss"
+
 %hideTransitionIn
   transition: transform 0.3s easeInSine 0.3s
 
@@ -23,6 +25,7 @@
       font-size: calc($fsSmaller / 1.2)
 
 .ui-header-items
+  position: relative
   width: 100%
   display: flex
   flex-direction: row

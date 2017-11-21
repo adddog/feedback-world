@@ -12,13 +12,15 @@ module.exports = ({ store }, emit, emitter) => {
   const messages = new Component()
   const comms = new Component()
 
-  const headerHTML = data => html`<div class="ui-header-items">
-    <h1><span>in room</span> ${data.id}</h1>
+  const headerHTML = data => html`
+    <div class="ui-header-items">
+      <h1><span>in room</span> ${data.id}</h1>
         <div class="ui-medias">
           <div data-type="webcam" class="ui-media ui-media--webcam"></div>
           <div data-type="insta" class="ui-media ui-media--insta"></div>
+          <div class="ui-tooltip ui-tooltip--bottom"><span>visual media</span></div>
         </div>
-      </div>`
+    </div>`
 
   const appMessagesHTML = data =>
     html`<span class="${data.class || ""}">${data.msg || ""}</span>`
@@ -35,6 +37,7 @@ module.exports = ({ store }, emit, emitter) => {
       ${renderHeader()}
       <div class="ui-footer">
         <div class="ui-record-c">
+          <div class="ui-tooltip ui-tooltip--bottom">visual media</div>
           <div class="ui-record ui-record--micro"></div>
           <div class="ui-record ui-record--render hide"></div>
         </div>

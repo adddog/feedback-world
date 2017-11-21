@@ -66,7 +66,7 @@ const o = observable({
   },
 })
 
-if(!IS_PROD){
+/*if(!IS_PROD){
   const gui = new dat.GUI()
   gui.add(o, "tolerance", 0, 1)
   gui.add(o, "slope", 0, 1)
@@ -78,7 +78,7 @@ if(!IS_PROD){
   gui.add(o, "recordFinalStop")
   gui.add(o, "instagram")
   gui.close()
-}
+}*/
 
 
 export const connect = ()=>{

@@ -1,0 +1,24 @@
+.ui-tooltip
+  position: absolute
+  &:before
+    position: absolute
+    bottom: 0
+    content: ''
+    background-color: $cDark
+    width: $fsSmall
+    height: $fsSmall
+    transform: rotate(90deg)
+  &--bottom
+    bottom: 0
+    right: 0
+    transform: translateY(100%)
+  &--top
+    top: 0
+    right: 0
+    transform: translateY(100%)
+  span
+    position: absolute
+    height: $fsSmall
+    color: $cWhite
+    font-size: $fsSmall
+    white-space: nowrap
