@@ -20,38 +20,31 @@ const Footer = footerEl => {
     )
   )
 
-  Gui.on("started", v => {
-    Socket.socket.on("rooms:get", rooms => {
-      _rooms = rooms.filter(r => r !== Gui.state.room.id).splice(0, 4)
-      roomEls.forEach(el => el.parentNode.classList.add("hide"))
-      _rooms.forEach((r, i) => {
-        roomEls[i].innerHTML = r
-        roomEls[i].parentNode.classList.remove("hide")
-        roomEls[i].parentNode.style.filter = `hue-rotate(${random(
-          360
-        )}deg)`
-      })
+  Socket.socket.on("rooms:get", rooms => {
+    _rooms = rooms.filter(r => r !== Gui.state.room.id).splice(0, 4)
+    console.log(`Rooms to join`, _rooms)
+    roomEls.forEach(el => el.parentNode.classList.add("hide"))
+    _rooms.forEach((r, i) => {
+      roomEls[i].innerHTML = r
+      roomEls[i].parentNode.classList.remove("hide")
+      roomEls[i].parentNode.style.filter = `hue-rotate(${random(
+        360
+      )}deg)`
     })
-
-    Socket.socket.emit("rooms:get")
-    logInfo("\tPeers listening for new rooms")
   })
 
-  Gui.on("connect", v => {
-    if (v) {
-      Socket.socket.emit("rooms:get")
-    }
-  })
+  Socket.socket.emit("rooms:get")
+  logInfo("\tPeers listening for new rooms")
 
   let _recordingFinal = false
   const microEl = footerEl.querySelector(".ui-record--micro")
   const renderEl = footerEl.querySelector(".ui-record--render")
   microEl.addEventListener("click", () => {
-    if(_recordingFinal) return
+    if (_recordingFinal) return
     if (!Gui.recordProgress) {
       AppEmitter.emit("record:audio:start")
       microEl.classList.remove("active")
-    }else{
+    } else {
       microEl.classList.add("active")
     }
   })
@@ -61,7 +54,7 @@ const Footer = footerEl => {
       _recordingFinal = true
       renderEl.classList.add("active")
       AppEmitter.emit("record:final:start")
-    }else{
+    } else {
       renderEl.classList.remove("active")
       AppEmitter.emit("record:final:stop")
       _recordingFinal = false

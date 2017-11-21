@@ -1,0 +1,63 @@
+@import "./ui-media.sss"
+
+.ui-medias
+  position: relative
+  width: auto
+  display: flex
+  align-items: flex-end
+  justify-content: flex-end
+
+.ui-media
+  position: relative
+  user-select: none
+  cursor: pointer
+  padding: 0 10px
+  width: 70px
+  height: 70px
+  background-image: url("images/button1.png")
+  background-size: contain
+  background-repeat: no-repeat
+  background-position: 50% 50%
+  &:before
+    pointer-events: none
+    visibility: hidden
+    font-size: $fsBig
+    letter-spacing: 1px
+    position: absolute
+    color: $cDark
+    width: 100%
+    height: 100%
+    content: attr(data-type)
+    text-shadow: 1px 1px 1px #fff
+    top: 50%
+    left: 0
+  &:hover
+    filter: LoFi
+    animation: hueSpin 6s infinite
+    &:before
+      visibility: visible
+  &--insta
+    &:after
+      position: absolute
+      left: 30%
+      top: 30%
+      width: 40%
+      height: 40%
+      content: ''
+      background-image: url("images/insta.png")
+      background-size: contain
+      background-position: 50% 50%
+      background-repeat: no-repeat
+  &--webcam
+    &:after
+      position: absolute
+      left: 30%
+      top: 30%
+      width: 40%
+      height: 40%
+      content: ''
+      background-image: url("images/webcam.png")
+      background-size: contain
+      background-position: 50% 50%
+      background-repeat: no-repeat
+

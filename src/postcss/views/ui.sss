@@ -1,4 +1,5 @@
 @import "./ui-tooltip.sss"
+@import "./ui-media.sss"
 
 %hideTransitionIn
   transition: transform 0.3s easeInSine 0.3s
@@ -44,54 +45,6 @@
   &.hide
     @extend %hideTransitionIn
     transform: translateY(100%)
-
-
-.ui-medias
-  position: relative
-  width: auto
-  display: flex
-  align-items: flex-end
-  justify-content: flex-end
-
-.ui-media
-  position: relative
-  user-select: none
-  cursor: pointer
-  padding: 0 10px
-  width: 70px
-  height: 70px
-  background-image: url("images/button1.png")
-  background-size: contain
-  background-repeat: no-repeat
-  background-position: 50% 50%
-  &:hover
-    filter: LoFi
-    animation: hueSpin 6s infinite
-  &--insta
-    &:after
-      position: absolute
-      left: 30%
-      top: 30%
-      width: 40%
-      height: 40%
-      content: ''
-      background-image: url("images/insta.png")
-      background-size: contain
-      background-position: 50% 50%
-      background-repeat: no-repeat
-  &--webcam
-    &:after
-      position: absolute
-      left: 30%
-      top: 30%
-      width: 40%
-      height: 40%
-      content: ''
-      background-image: url("images/webcam.png")
-      background-size: contain
-      background-position: 50% 50%
-      background-repeat: no-repeat
-
 
 .ui-rooms
   display: flex
