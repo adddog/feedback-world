@@ -1,8 +1,8 @@
 import dragDrop from "drag-drop"
 import { throttle, mean } from "lodash"
 import { cover, contain } from "intrinsic-scale"
-import AppEmitter from "../common/emitter"
-import { IS_DEV, WIDTH, HEIGHT } from "../common"
+import AppEmitter from "common/emitter"
+import { IS_DEV, WIDTH, HEIGHT } from "common/constants"
 
 const SAMPLE_AMOUNT = 8
 

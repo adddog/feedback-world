@@ -1,6 +1,6 @@
 import Hammer from "hammerjs"
 import { cover, contain } from "intrinsic-scale"
-import { WIDTH, HEIGHT } from "../common"
+import { WIDTH, HEIGHT } from "common/constants"
 
 const MobileInteraction = webrtc => {
   const videoEl = document.getElementById("localVideo")

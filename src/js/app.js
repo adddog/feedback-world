@@ -1,7 +1,6 @@
 import { IS_DEV, WIDTH, HEIGHT } from "common/constants"
-import Whammy from "./lib/Whammy"
+import Whammy from "lib/Whammy"
 import Adapter from "webrtc-adapter"
-import Model from "./model"
 import { find } from "lodash"
 import SimpleWebRTC from "simplewebrtc"
 
@@ -18,7 +17,7 @@ if (IS_DEV) {
   app.use(require("choo-devtools")())
 }
 
-//app.use(require('./store'))
+app.use(require('./store'))
 
 
 const onload = el => {

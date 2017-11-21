@@ -1,7 +1,7 @@
-import Gui from "../common/gui"
+import Gui from "common/gui"
 import Geometry from "./geometry"
 import Interaction from "./interaction"
-import Accelerometer from "../common/accelerometer"
+import Accelerometer from "common/accelerometer"
 import {
   ALPHA_SENS,
   M_SCREEN_ORIEN,
@@ -12,7 +12,7 @@ import {
   logInfo,
   logSuccess,
   findPeer,
-} from "../common"
+} from "common/constants"
 
 const Mobile = (webrtc, state, emitter) => {
   if (Detector.isDesktop) return

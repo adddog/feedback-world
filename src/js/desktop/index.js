@@ -2,19 +2,19 @@ import uuid from "uuid"
 import { mat4 } from "gl-matrix"
 import QS from "query-string"
 import sono from "sono"
-import Socket from "../socket"
-import Regl from "./regl"
-import GeometryInteraction from "./regl/geometry-interaction"
-import DesktopInteraction from "./interaction"
-import AppEmitter from "../common/emitter"
-import MSRecorder from "./recording/mediaStreamRecorder"
-import Instagram from "./media/instagram"
-import Webcam from "./media/webcam"
-import Record from "./recording/record"
-import Recorder from "./recording/soundRecorder"
-import Sound from "./recording/sound"
-import Gui from "../common/gui"
-import Server from "../common/server"
+import Socket from "common/socket"
+import Regl from "desktop/regl"
+import GeometryInteraction from "desktop/regl/geometry-interaction"
+import DesktopInteraction from "desktop/interaction"
+import AppEmitter from "common/emitter"
+import MSRecorder from "desktop/recording/mediaStreamRecorder"
+import Instagram from "desktop/media/instagram"
+import Webcam from "desktop/media/webcam"
+import Record from "desktop/recording/record"
+import Recorder from "desktop/recording/soundRecorder"
+import Sound from "desktop/recording/sound"
+import Gui from "common/gui"
+import Server from "common/server"
 import {
   first,
   last,
@@ -52,7 +52,7 @@ import {
   logSuccess,
   postMsg,
   createVideoElFromStream,
-} from "../common"
+} from "common/constants"
 
 const Desktop = (webrtc, state, emitter) => {
   if (IS_MOBILE) return

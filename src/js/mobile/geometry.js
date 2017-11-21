@@ -1,6 +1,6 @@
 import quad from "quads"
 import cylinder from "primitive-cylinder"
-import { Z_AMP, Y_AMP } from "../desktop/regl/constants"
+import { Z_AMP, Y_AMP } from "desktop/regl/constants"
 const MAX_POINTS = 500
 const FPS = 1000 / 9
 const Z = 2

@@ -8,8 +8,8 @@ import {
   WHITE,
 } from "./constants"
 import Peers from "./peers"
-import AppEmitter from "../../common/emitter"
-import Gui from "../../common/gui"
+import AppEmitter from "common/emitter"
+import Gui from "common/gui"
 
 const Pixi = (state, emitter, parentEl) => {
   const stage = new PIXI.Container()

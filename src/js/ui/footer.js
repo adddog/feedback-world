@@ -1,8 +1,8 @@
 import { throttle, mean, random } from "lodash"
-import Socket from "../socket"
-import Gui from "../common/gui"
-import AppEmitter from "../common/emitter"
-import { logInfo, IS_DEV, WIDTH, HEIGHT } from "../common"
+import Socket from "common/socket"
+import Gui from "common/gui"
+import AppEmitter from "common/emitter"
+import { logInfo, IS_DEV, WIDTH, HEIGHT } from "common/constants"
 
 const Footer = footerEl => {
   let _rooms

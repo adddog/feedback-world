@@ -3,10 +3,9 @@ import QS from "query-string"
 import uuid from "uuid"
 import io from "socket.io-client"
 import SimpleWebRTC from "simplewebrtc"
-import { colour } from "./common"
-import AppEmitter from "./common/emitter"
-import { connect, disconnect } from "./common/gui"
-import Gui from "./common/gui"
+import AppEmitter from "common/emitter"
+import { connect, disconnect } from "common/gui"
+import Gui from "common/gui"
 import {
   logSuccess,
   logInfo,
@@ -18,12 +17,12 @@ import {
   IS_DEV,
   IS_PROD,
   HEIGHT,
-} from "./common"
-import Server from "./common/server"
-import Socket from "./socket"
-import UI from "./ui"
-import Desktop from "./desktop"
-import Mobile from "./mobile"
+} from "common/constants"
+import Server from "common/server"
+import Socket from "common/socket"
+import UI from "ui"
+import Desktop from "desktop"
+import Mobile from "mobile"
 
 const WebRTC = (store, emitter) => {
   function init() {
