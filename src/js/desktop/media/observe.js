@@ -38,7 +38,7 @@ const ObserveViewer = () => {
     if (!stream) return
     if (!_window) start()
     _window.document.write(
-      `<html><body style="margin:0"; video{position:absolute;left:0;top:0;width:${w}px;height:${h}px;}></body></html>`
+      `<html><title>feedback friend sees ...</title><body style="margin:0"; video{position:absolute;left:0;top:0;width:${w}px;height:${h}px;}></body></html>`
     )
     _window.document.body.appendChild(
       createVideoElFromStream(stream, { width: w, height: h })

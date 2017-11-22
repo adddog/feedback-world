@@ -869,22 +869,28 @@ const Desktop = (webrtc, state, emitter) => {
       if (p - _timeCounter >= FPS_I) {
         if (
           renderSettings.multi &&
-          renderSettings.mainVideo.el.readyState === 4 &&
-          renderSettings.keyVideo.el.readyState === 4
+          renderSettings.mainVideo.isReady &&
+          renderSettings.keyVideo.isReady
         ) {
-          renderMulti()
-        } else if (
-          renderSettings.multi &&
-          renderSettings.mainVideo.el.readyState !== 4 &&
-          renderSettings.keyVideo.el.readyState === 4
-        ) {
-          // webcam active and remote desktop not
-          renderSingle(renderSettings.keyVideo.el)
+          if (
+            renderSettings.mainVideo.el.readyState === 4 &&
+            renderSettings.keyVideo.el.readyState === 4
+          ) {
+            renderMulti()
+          } else if (
+            renderSettings.mainVideo.el.readyState !== 4 &&
+            renderSettings.keyVideo.el.readyState === 4
+          ) {
+            // webcam active and remote desktop not
+            renderSingle(renderSettings.keyVideo.el)
+          }
         } else if (renderSettings.single && !renderSettings.multi) {
           const source =
             renderSettings.mainVideo.el || renderSettings.keyVideo.el
-          if (source.readyState === 4) {
-            renderSingle(source)
+          if (source) {
+            if (source.readyState === 4) {
+              renderSingle(source)
+            }
           }
         }
 
