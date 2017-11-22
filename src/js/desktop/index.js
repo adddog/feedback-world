@@ -73,16 +73,19 @@ const Desktop = (webrtc, state, emitter) => {
   const remoteDesktopVideo = {
     isReady: false,
     el: null,
+    targetKey:null
   }
 
   const keyVideo = {
     isReady: false,
     el: null,
+    targetKey:null
   }
 
   let pairedMobile = {
     el: null,
     secret: null,
+    targetKey:null,
     id: null,
     peer: null,
     engaged: false,
@@ -246,9 +249,11 @@ const Desktop = (webrtc, state, emitter) => {
   const createCanvasStream = () => {
     const stream = canvasEl.captureStream(FPS)
     webrtc.webrtc.localStreams.unshift(stream)
-    console.log(stream);
     //toggleMediaStream(false)
-    logSuccess(`Created canvas stream (createCanvasStream) ${stream.id}. localStreams length: ${webrtc.webrtc.localStreams.length}`)
+    logSuccess(
+      `Created canvas stream (createCanvasStream) ${stream.id}. localStreams length: ${webrtc
+        .webrtc.localStreams.length}`
+    )
     /*const v = document.createElement("video")
     v.width = WIDTH
     v.height = HEIGHT
@@ -286,7 +291,10 @@ const Desktop = (webrtc, state, emitter) => {
   const setPairedMobileReady = el => {
     pairedMobile.el = el
     pairedMobile.isReady = true
-    addRenderingMedia(pairedMobile.el, "mainVideo")
+    pairedMobile.targetKey = addRenderingMedia(
+      pairedMobile.el,
+      "mainVideo"
+    )
     geoInteraction.enable(false)
     send("local:desktop:request:mesh")
   }
@@ -294,7 +302,7 @@ const Desktop = (webrtc, state, emitter) => {
   const setVideoToKey = el => {
     keyVideo.el = el
     keyVideo.isReady = true
-    addRenderingMedia(keyVideo.el, "keyVideo")
+    keyVideo.targetKey = addRenderingMedia(keyVideo.el, "keyVideo")
     logSuccess(`keyVideo.isReady ${true}`)
   }
 
@@ -310,39 +318,55 @@ const Desktop = (webrtc, state, emitter) => {
   const setRemoteDesktopStream = el => {
     remoteDesktopVideo.el = el
     remoteDesktopVideo.isReady = true
-    addRenderingMedia(remoteDesktopVideo.el, "keyVideo")
+    remoteDesktopVideo.targetKey = addRenderingMedia(
+      remoteDesktopVideo.el,
+      "keyVideo"
+    )
+    logInfoB(`setRemoteDesktopStream() - targetKey: ${remoteDesktopVideo.targetKey}`)
   }
 
-  const addRenderingMedia = (videoEl, target) => {
-    if (renderSettings[target].isReady) {
-      logError(
-        `ALREADY RENDERING ON ${target}, will slot into available spot`
-      )
-      slotIntoRenderingMedia(videoEl)
-      return
+  const stopRemoteDesktopStream = () => {
+    remoteDesktopVideo.isReady = false
+    if(remoteDesktopVideo.targetKey === "keyVideo"){
+      stopKeyVideo(remoteDesktopVideo.el)
     }
-    renderSettings[target].el = videoEl
-    renderSettings[target].isReady = true
+  }
+
+  const addRenderingMedia = (videoEl, targetKey) => {
+    if (renderSettings[targetKey].isReady) {
+      logError(
+        `ALREADY RENDERING ON ${targetKey}, will slot into available spot`
+      )
+      return slotIntoRenderingMedia(videoEl)
+    }
+    renderSettings[targetKey].el = videoEl
+    renderSettings[targetKey].isReady = true
     if (renderSettings.single) {
       renderSettings.multi = true
     } else if (!renderSettings.single) {
       renderSettings.single = true
     }
+    logInfo(`addRenderingMedia() - using ${targetKey}`)
+    console.log(renderSettings);
+    return targetKey
   }
 
   const onVideoStopped = videoEl => {
     if (renderSettings.mainVideo.el === videoEl) {
+      renderSettings.mainVideo.el = null
       renderSettings.mainVideo.isReady = false
       renderSettings.multi = false
     } else if (renderSettings.keyVideo.el === videoEl) {
+      renderSettings.keyVideo.el = null
       renderSettings.keyVideo.isReady = false
       renderSettings.multi = false
     }
-    if (renderSettings.multi) {
+
+    if (!renderSettings.multi && renderSettings.single) {
       renderSettings.single = true
-    } else if (renderSettings.single) {
-      renderSettings.single = false
     }
+    logInfo(`onVideoStopped() - renderSettings:`)
+    console.log(renderSettings);
   }
 
   const slotIntoRenderingMedia = videoEl => {
@@ -350,18 +374,25 @@ const Desktop = (webrtc, state, emitter) => {
       key => !renderSettings[key].isReady
     )
     const targetKey = first(availableSlots)
+    logInfoB(`slotIntoRenderingMedia() - using ${targetKey}`)
     if (targetKey) {
       renderSettings[targetKey].isReady = true
       renderSettings[targetKey].el = videoEl
       if (availableSlots.length === 1) {
+        logInfoB(`slotIntoRenderingMedia() - rendering multi`)
         renderSettings.multi = true
       } else {
+        logInfoB(`slotIntoRenderingMedia() - rendering single`)
         renderSettings.single = true
       }
+    }else{
+      logError(`NO AVAILBLE PLACE FOR VIDEO EL`)
+      return null
     }
+    return targetKey
   }
 
-  const connectToOtherDesktop = (peer,id) => {
+  const connectToOtherDesktop = (peer, id) => {
     if (!peer) return
     remoteDesktopPeer.peer = peer
     remoteDesktopPeer.id = id || peer.id
@@ -431,7 +462,7 @@ const Desktop = (webrtc, state, emitter) => {
 
           interaction.addKeyboardCommunication()
 
-          if(numDesktops){
+          if (numDesktops) {
             const foundPeer = findPeer(peerIds.values(), data.from)
             connectToOtherDesktop(foundPeer, data.from)
           }
@@ -612,7 +643,9 @@ const Desktop = (webrtc, state, emitter) => {
 
     sendHandshake()
 
-    logInfo(`createdPeer: sent localsecret (pairedMobile.secret:  ${pairedMobile.secret} )`)
+    logInfo(
+      `createdPeer: sent localsecret (pairedMobile.secret:  ${pairedMobile.secret} )`
+    )
   })
 
   webrtc.on("leftRoom", roomId => {
@@ -622,9 +655,15 @@ const Desktop = (webrtc, state, emitter) => {
   })
 
   webrtc.on("peerRemoved", peer => {
+    const foundPeer = findPeer(peerIds.values(), peer.id)
+    if(foundPeer.desktop){
+      stopRemoteDesktopStream()
+    }
     peers.delete(peer)
+    peerIds.delete(peer.id)
     cancelStreamFromPeer(peer)
     console.log(`Peer left ${peer.id}`)
+    console.log(`Peers remaining: ${peerIds.size}`)
     if (pairedMobile.id === peer.id) {
       console.log(`Mobile left ${peer.id}`)
       reset()
@@ -633,6 +672,7 @@ const Desktop = (webrtc, state, emitter) => {
 
   webrtc.on("videoRemoved", (videoEl, peer) => {
     logInfoB(`videoRemoved ${peer.id}`)
+    onVideoStopped(videoEl)
   })
 
   webrtc.on("videoAdded", function(video, peer) {

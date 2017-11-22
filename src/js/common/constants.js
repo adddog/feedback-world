@@ -6,7 +6,7 @@ import { map } from "lodash"
 
 const error = tiza.color("red").text
 const info = tiza.bold().bgColor("yellow").text
-const infoB = tiza.bold().bgColor("blue").text
+const infoB = tiza.bold().bgColor("#BBDEFB").text
 const success = tiza.bold().bgColor("#ABEDD1").text
 
 export const logError = str => tiza.log(error(str))

@@ -158,7 +158,7 @@ const ReglMeshGeometry = regl => {
 
   function draw(props) {
     _meshes.forEach((meshObj, i) => {
-      if (meshObj.model[14] > FAR_Z / 2) {
+      if (meshObj.model[14] > FAR_Z) {
         _meshes.splice(i, 1)
         AppEmitter.emit("regl:mesh:removed")
       } else {
