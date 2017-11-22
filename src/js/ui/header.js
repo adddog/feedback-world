@@ -13,8 +13,18 @@ const Header = headerEl => {
   })
 
   let _webcamStarted = Gui.state.useWebcam
+  let _isObserving = false
   const onHeaderMediaClicked = dataset => {
     switch (dataset.type) {
+      case "observe": {
+        if(_isObserving){
+          AppEmitter.emit("observeviewer:stop")
+        }else{
+          AppEmitter.emit("observeviewer:start")
+        }
+        _isObserving = !_isObserving
+        break
+      }
       case "insta": {
         AppEmitter.emit("insta:start")
         break

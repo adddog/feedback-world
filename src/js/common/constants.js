@@ -96,10 +96,14 @@ export const numberDesktops = values => {
   return c
 }
 
-export const createVideoElFromStream = stream => {
+export const createVideoElFromStream = (
+  stream,
+  { width = WIDTH, height = HEIGHT } = {}
+) => {
   const v = document.createElement("video")
-  v.width = WIDTH
-  v.height = HEIGHT
+  v.setAttribute("autoplay", true)
+  v.width = width
+  v.height = height
   v.srcObject = stream
   v.classList.add("canvas")
   return v

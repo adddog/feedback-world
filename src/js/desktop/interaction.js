@@ -179,7 +179,7 @@ const DesktopInteraction = (webrtc, sourceEl) => {
     } else {
       _commString += String.fromCharCode(e.keyCode)
     }
-    _commTo = setTimeout(function(){
+    _commTo = setTimeout(function() {
       _commString = ""
       AppEmitter.emit("desktop:communcation", _commString)
     }, 4000)
@@ -193,6 +193,7 @@ const DesktopInteraction = (webrtc, sourceEl) => {
   function removeKeyboardCommunication() {
     window.removeEventListener("keyup", onKeyUp)
   }
+
 
   return {
     setOnFileDropped,

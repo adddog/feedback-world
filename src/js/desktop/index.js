@@ -10,6 +10,7 @@ import AppEmitter from "common/emitter"
 import MSRecorder from "desktop/recording/mediaStreamRecorder"
 import Instagram from "desktop/media/instagram"
 import Webcam from "desktop/media/webcam"
+import ObserveViewer from "desktop/media/observe"
 import Record from "desktop/recording/record"
 import Recorder from "desktop/recording/soundRecorder"
 import Sound from "desktop/recording/sound"
@@ -73,19 +74,19 @@ const Desktop = (webrtc, state, emitter) => {
   const remoteDesktopVideo = {
     isReady: false,
     el: null,
-    targetKey:null
+    targetKey: null,
   }
 
   const keyVideo = {
     isReady: false,
     el: null,
-    targetKey:null
+    targetKey: null,
   }
 
   let pairedMobile = {
     el: null,
     secret: null,
-    targetKey:null,
+    targetKey: null,
     id: null,
     peer: null,
     engaged: false,
@@ -132,10 +133,6 @@ const Desktop = (webrtc, state, emitter) => {
   canvasKey.width = KEY_W
   canvasKey.height = KEY_H
 
-  if (IS_DEV) {
-    //canvasKey.classList.add("canvas")
-    //document.body.appendChild(canvasKey)
-  }
   const reset = () => {
     interaction.removeKeyboardCommunication()
     localVideo.isReady = false
@@ -161,6 +158,7 @@ const Desktop = (webrtc, state, emitter) => {
     setVideoToKey(video)
   })
   const webcam = Webcam(webrtc)
+  const observeViewer = ObserveViewer()
   const instagram = Instagram(videoEl)
   const sound = Sound()
   const record = Record()
@@ -319,7 +317,7 @@ const Desktop = (webrtc, state, emitter) => {
     remoteDesktopVideo.el = el
     remoteDesktopVideo.isReady = true
     const targetKey = pairedMobile.id ? "keyVideo" : "mainVideo"
-    if(webcam.started){
+    if (webcam.started) {
       stopWebcam()
     }
     remoteDesktopVideo.targetKey = addRenderingMedia(
@@ -327,12 +325,14 @@ const Desktop = (webrtc, state, emitter) => {
       targetKey,
       true
     )
-    logInfoB(`setRemoteDesktopStream() - targetKey: ${remoteDesktopVideo.targetKey}`)
+    logInfoB(
+      `setRemoteDesktopStream() - targetKey: ${remoteDesktopVideo.targetKey}`
+    )
   }
 
   const stopRemoteDesktopStream = () => {
     remoteDesktopVideo.isReady = false
-    if(remoteDesktopVideo.targetKey === "keyVideo"){
+    if (remoteDesktopVideo.targetKey === "keyVideo") {
       onVideoStopped(remoteDesktopVideo.el)
     }
   }
@@ -342,9 +342,9 @@ const Desktop = (webrtc, state, emitter) => {
       logError(
         `ALREADY RENDERING ON ${targetKey}, will slot into available spot. Force? ${force}`
       )
-      if(!force){
+      if (!force) {
         return slotIntoRenderingMedia(videoEl)
-      }else{
+      } else {
         onVideoStopped(renderSettings[targetKey].el)
       }
     }
@@ -356,7 +356,7 @@ const Desktop = (webrtc, state, emitter) => {
       renderSettings.single = true
     }
     logInfo(`addRenderingMedia() - using ${targetKey}`)
-    console.log(renderSettings);
+    console.log(renderSettings)
     return targetKey
   }
 
@@ -375,7 +375,7 @@ const Desktop = (webrtc, state, emitter) => {
       renderSettings.single = true
     }
     logInfo(`onVideoStopped() - renderSettings:`)
-    console.log(renderSettings);
+    console.log(renderSettings)
   }
 
   const slotIntoRenderingMedia = videoEl => {
@@ -394,7 +394,7 @@ const Desktop = (webrtc, state, emitter) => {
         logInfoB(`slotIntoRenderingMedia() - rendering single`)
         renderSettings.single = true
       }
-    }else{
+    } else {
       logError(`NO AVAILBLE PLACE FOR VIDEO EL`)
       return null
     }
@@ -406,6 +406,12 @@ const Desktop = (webrtc, state, emitter) => {
     remoteDesktopPeer.peer = peer
     remoteDesktopPeer.id = id || peer.id
     logSuccess(`connectToOtherDesktop ${remoteDesktopPeer.id}`)
+  }
+
+  const disconnectTromOtherDesktop = () => {
+    logSuccess(`disconnectTromOtherDesktop ${remoteDesktopPeer.id}`)
+    remoteDesktopPeer.peer = null
+    remoteDesktopPeer.id = null
   }
 
   //***************
@@ -565,7 +571,7 @@ const Desktop = (webrtc, state, emitter) => {
           AppEmitter.emit("desktop:communcation:remote", data.payload)
           break
         }
-        case "local:desktop:addKeyColors":{
+        case "local:desktop:addKeyColors": {
           AppEmitter.emit("remote:addKeyColor", data.payload)
           break
         }
@@ -671,8 +677,9 @@ const Desktop = (webrtc, state, emitter) => {
 
   webrtc.on("peerRemoved", peer => {
     const foundPeer = findPeer(peerIds.values(), peer.id)
-    if(foundPeer.desktop){
+    if (foundPeer.desktop) {
       stopRemoteDesktopStream()
+      disconnectTromOtherDesktop()
     }
     peers.delete(peer)
     peerIds.delete(peer.id)
@@ -824,40 +831,61 @@ const Desktop = (webrtc, state, emitter) => {
   // LOOP
   //*************
 
+  const renderMulti = () => {
+    regl.drawKey({
+      mobile: {
+        source: renderSettings.mainVideo.el,
+        width: WIDTH,
+        height: HEIGHT,
+      },
+      keyVideo: {
+        source: renderSettings.keyVideo.el,
+        width: WIDTH,
+        height: HEIGHT,
+      },
+      keyColors: {
+        source: canvasKey,
+        format: "rgba",
+        width: KEY_W,
+        height: KEY_H,
+      },
+    })
+  }
+
+  const renderSingle = source => {
+    regl.drawSingle({
+      mobile: {
+        source: source,
+        flipX: true,
+        width: WIDTH,
+        height: HEIGHT,
+      },
+    })
+  }
+
   const engine = loop(function(dt) {
     const p = performance.now()
     if (Gui.rendering) {
       if (p - _timeCounter >= FPS_I) {
-        if (renderSettings.multi) {
-          regl.drawKey({
-            mobile: {
-              source: renderSettings.mainVideo.el,
-              width: WIDTH,
-              height: HEIGHT,
-            },
-            keyVideo: {
-              source: renderSettings.keyVideo.el,
-              width: WIDTH,
-              height: HEIGHT,
-            },
-            keyColors: {
-              source: canvasKey,
-              format: "rgba",
-              width: KEY_W,
-              height: KEY_H,
-            },
-          })
+        if (
+          renderSettings.multi &&
+          renderSettings.mainVideo.el.readyState === 4 &&
+          renderSettings.keyVideo.el.readyState === 4
+        ) {
+          renderMulti()
+        } else if (
+          renderSettings.multi &&
+          renderSettings.mainVideo.el.readyState !== 4 &&
+          renderSettings.keyVideo.el.readyState === 4
+        ) {
+          // webcam active and remote desktop not
+          renderSingle(renderSettings.keyVideo.el)
         } else if (renderSettings.single && !renderSettings.multi) {
-          regl.drawSingle({
-            mobile: {
-              source:
-                renderSettings.mainVideo.el ||
-                renderSettings.keyVideo.el,
-              flipX: true,
-              width: WIDTH,
-              height: HEIGHT,
-            },
-          })
+          const source =
+            renderSettings.mainVideo.el || renderSettings.keyVideo.el
+          if (source.readyState === 4) {
+            renderSingle(source)
+          }
         }
 
         if (Gui.recording) {
@@ -941,6 +969,13 @@ const Desktop = (webrtc, state, emitter) => {
 
   AppEmitter.on("desktop:communcation", str =>
     send("local:desktop:message", str)
+  )
+  AppEmitter.on(
+    "observeviewer:start",
+    () =>
+      remoteDesktopPeer.id
+        ? observeViewer.addStream(remoteDesktopPeer.peer.stream)
+        : null
   )
 
   Gui.on("disconnect", v => {
