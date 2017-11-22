@@ -18,7 +18,8 @@ const AUTH_SERVICE = (() => {
         null,
         "height=700,width=600,status=yes,toolbar=no,menubar=no,location=no"
       )
-      const searchCode = process.env.NODE_ENV === 'development' ? "success?" : "code?="
+      const searchCode = "success?" //process.env.NODE_ENV === 'development' ? "success?" : "success?="
+      console.log(`searchCode ${searchCode}`);
       let _i = setInterval(() => {
         if(newWindow){
           if (newWindow.location) {
