@@ -2,16 +2,21 @@
   position: absolute
   height: $fsSmall
   pointer-events: none
+  width: 100%
   &--bottom
     bottom: -4px
     right: 4px
     transform: translateY(100%)
   &--top
-    top: 4px
-    right: 4px
-    transform: translateY(100%)
+    top: calc(-$fsBig / 2)
+    left: 50%
+    transform: translateY(-100%) translateX(-50%)
   span
+    position: absolute
+    letter-spacing: 2px
     color: $cWhite
-    font-size: $fsSmall
+    left: 50%
+    font-size: $fsBig
     white-space: nowrap
-    transform: skew(-16deg)
+    transform-origin: 50% 50%
+    transform: skew(38deg) rotateY(-40deg) translateX(-50%)

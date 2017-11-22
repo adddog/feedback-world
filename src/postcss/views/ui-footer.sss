@@ -1,0 +1,110 @@
+.ui-footer
+  position: absolute
+  bottom: 0
+  width: 100%
+  left: 0
+  display: flex
+  justify-content: space-between
+  align-items: center
+  @extend %hideTransitionOut
+  &.hide
+    @extend %hideTransitionIn
+    @extend %tooltipHide
+  @extend %tooltipShow
+
+.ui-button
+  cursor: pointer
+  user-select: none
+  @extend %t-small
+  color: $cDark
+  min-height: 50px
+  min-width: 120px
+  max-width: 120px
+  background-image: url("images/button.png")
+  background-size: contain
+  background-position: 50% 50%
+  background-repeat: no-repeat
+  &:hover
+    filter: LoFi
+
+.ui-record-c
+  display: flex
+  padding-left: 10px
+  justify-content: flex-start
+  align-items: center
+
+.ui-record
+  cursor: pointer
+  user-select: none
+  @extend %t-small
+  color: $cDark
+  min-height: 60px
+  min-width: 60px
+  background-image: url("images/record.png")
+  background-size: contain
+  background-position: 50% 50%
+  background-repeat: no-repeat
+  &:hover
+    filter: LoFi
+
+
+.ui-record--micro
+  position: relative
+  &:after
+    position: absolute
+    width: 70%
+    height: 70%
+    content: ''
+    left: 15%
+    top: 15%
+    background-image: url("images/micro.png")
+    background-position: 50% 50%
+    background-size: contain
+    background-repeat: no-repeat
+  &.active
+    filter: LoFi
+
+.ui-record--render
+  position: relative
+  &:after
+    position: absolute
+    width: 70%
+    height: 70%
+    content: ''
+    left: 15%
+    top: 15%
+    background-image: url("images/render.png")
+    background-position: 50% 50%
+    background-size: contain
+    background-repeat: no-repeat
+  &.hide
+    display: none
+  &.active
+    filter: LoFi
+
+.ui-pixi
+  position: relative
+  width: auto
+  height: auto
+  &-title
+    font-family: $ffSmall
+    font-size: $fsSmaller
+    pointer-events: none
+    user-select: none
+    height: $fsSmaller
+  &-labels
+    position: absolute
+    margin-top: 2px
+    pointer-events: none
+    font-family: $ffSmall
+    height: $fsSmall
+    width: 100%
+    display: flex
+    align-items: center
+    justify-content: flex-start
+    span
+      padding-left: 0.1em
+      opacity: 0.6
+      position: relative
+      width: 50%
+

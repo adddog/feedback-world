@@ -67,3 +67,14 @@ $ffBig: "StellarM"
 
 %hideTransitionOut
   transition: transform 0.3s easeOutSine
+
+%tooltipShow
+  .ui-tooltip
+    opacity: 1
+    transition: opacity 1s easeOutSine 0s
+
+%tooltipHide
+  transform: translateY(100%)
+  .ui-tooltip
+    opacity: 0
+    transition: opacity 1s easeOutSine 3s

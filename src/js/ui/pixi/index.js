@@ -1,6 +1,8 @@
 import "pixi.js"
 import {
   WIDTH,
+  KEY_COLORS_RADIUS,
+  BAR_WIDTH,
   BAR_HEIGHT,
   HEIGHT,
   HEADER_HEIGHT,
@@ -9,6 +11,7 @@ import {
   WHITE,
 } from "./constants"
 import MixBars from "./mix-bars"
+import KeyColors from "./key-colors"
 import AppEmitter from "common/emitter"
 import Gui from "common/gui"
 
@@ -25,14 +28,18 @@ const Pixi = (state, emitter, parentEl) => {
   const mix = [Gui.tolerance, Gui.slope]
 
   parentEl.addEventListener("mousemove", e => {
-    let n = (e.layerX - WIDTH / 2) / (WIDTH / 2)
+    let n = (e.layerX - BAR_WIDTH / 2) / (BAR_WIDTH / 2)
     if (n < 0) {
       n = 1 - Math.abs(n)
       Gui.tolerance = mix[0] = n
     } else {
       Gui.slope = mix[1] = n
     }
-    mixingBar.update(mix, { width: WIDTH, height: BAR_HEIGHT, y: 0 })
+    mixingBar.update(mix, {
+      width: BAR_WIDTH,
+      height: BAR_HEIGHT,
+      y: 0,
+    })
     render()
   })
 
@@ -40,6 +47,8 @@ const Pixi = (state, emitter, parentEl) => {
 
   const recordBar = new MixBars(app.stage, renderer)
   const mixingBar = new MixBars(app.stage, renderer)
+  const keyColors = new KeyColors(app.stage, renderer)
+  const keyColorsRemote = new KeyColors(app.stage, renderer)
   const mixingBarRemote = new MixBars(app.stage, renderer)
 
   const render = () => app.renderer.render(app.stage)
@@ -57,10 +66,29 @@ const Pixi = (state, emitter, parentEl) => {
   Gui.on("recordProgress", v => updateRecordBar(v))
   Gui.on("remoteDesktopGL", ({ tolerance, slope }) => {
     mixingBarRemote.update([tolerance, slope], {
-      width: WIDTH,
-      height: BAR_HEIGHT * .5,
-      y: BAR_HEIGHT * 1.5,
+      width: BAR_WIDTH,
+      height: BAR_HEIGHT * 0.5,
+      y: BAR_HEIGHT + 3,
       alpha: 0.7,
+    })
+    render()
+  })
+
+  AppEmitter.on("local:addKeyColor", colors => {
+    keyColors.update(colors, {
+      x: KEY_COLORS_RADIUS,
+      y: BAR_HEIGHT * 2 + KEY_COLORS_RADIUS ,
+      radius: KEY_COLORS_RADIUS,
+    })
+    render()
+  })
+
+  AppEmitter.on("remote:addKeyColor", colors => {
+    keyColorsRemote.update(colors, {
+      x: WIDTH - KEY_COLORS_RADIUS,
+      y: BAR_HEIGHT * 2 + KEY_COLORS_RADIUS ,
+      radius: KEY_COLORS_RADIUS,
+      alpha: 0.7
     })
     render()
   })

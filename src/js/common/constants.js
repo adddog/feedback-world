@@ -1,3 +1,4 @@
+import QS from "query-string"
 import Gui from "common/gui"
 import Detector from "common/detector"
 import colors from "nice-color-palettes"
@@ -51,7 +52,7 @@ export const WIDTH = 640
 export const HEIGHT = 480
 
 export const MAX_RECORD_TIME = 5000
-export const FPS = 18
+export const FPS = QS.parse(location.search).fps || 18
 export const FPS_I = 1000 / FPS
 
 export const RECORD_FRAMES_DELAY = 1500

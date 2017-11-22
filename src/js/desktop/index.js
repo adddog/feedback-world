@@ -318,9 +318,14 @@ const Desktop = (webrtc, state, emitter) => {
   const setRemoteDesktopStream = el => {
     remoteDesktopVideo.el = el
     remoteDesktopVideo.isReady = true
+    const targetKey = pairedMobile.id ? "keyVideo" : "mainVideo"
+    if(webcam.started){
+      stopWebcam()
+    }
     remoteDesktopVideo.targetKey = addRenderingMedia(
       remoteDesktopVideo.el,
-      "keyVideo"
+      targetKey,
+      true
     )
     logInfoB(`setRemoteDesktopStream() - targetKey: ${remoteDesktopVideo.targetKey}`)
   }
@@ -328,16 +333,20 @@ const Desktop = (webrtc, state, emitter) => {
   const stopRemoteDesktopStream = () => {
     remoteDesktopVideo.isReady = false
     if(remoteDesktopVideo.targetKey === "keyVideo"){
-      stopKeyVideo(remoteDesktopVideo.el)
+      onVideoStopped(remoteDesktopVideo.el)
     }
   }
 
-  const addRenderingMedia = (videoEl, targetKey) => {
+  const addRenderingMedia = (videoEl, targetKey, force = false) => {
     if (renderSettings[targetKey].isReady) {
       logError(
-        `ALREADY RENDERING ON ${targetKey}, will slot into available spot`
+        `ALREADY RENDERING ON ${targetKey}, will slot into available spot. Force? ${force}`
       )
-      return slotIntoRenderingMedia(videoEl)
+      if(!force){
+        return slotIntoRenderingMedia(videoEl)
+      }else{
+        onVideoStopped(renderSettings[targetKey].el)
+      }
     }
     renderSettings[targetKey].el = videoEl
     renderSettings[targetKey].isReady = true
@@ -405,6 +414,9 @@ const Desktop = (webrtc, state, emitter) => {
   const addKeyColor = color => {
     keyColors.push(color)
     keyColors.shift()
+
+    AppEmitter.emit("local:addKeyColor", keyColors)
+    send("local:desktop:addKeyColors", keyColors)
 
     var id = keyCtx.createImageData(KEY_W, KEY_H)
 
@@ -553,7 +565,10 @@ const Desktop = (webrtc, state, emitter) => {
           AppEmitter.emit("desktop:communcation:remote", data.payload)
           break
         }
-        case "local:desktop:addKeyColor":
+        case "local:desktop:addKeyColors":{
+          AppEmitter.emit("remote:addKeyColor", data.payload)
+          break
+        }
         case "local:mobile:addKeyColor": {
           addKeyColor(data.payload)
           break

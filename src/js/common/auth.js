@@ -23,10 +23,10 @@ const AUTH_SERVICE = (() => {
         if(newWindow){
           if (newWindow.location) {
             let url = newWindow.location.href || newWindow.location
-            let success = url.indexOf("success") > -1
+            let success = url.indexOf("code") > -1
             if (success) {
               clearInterval(_i)
-              let _str = url.split("success?")[1]
+              let _str = url.split("code?")[1]
               const parsedHash = queryString.parse(_str)
               newWindow.close()
               newWindow = null

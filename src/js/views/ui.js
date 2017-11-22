@@ -42,11 +42,11 @@ module.exports = ({ store }, emit, emitter) => {
           <div class="ui-record ui-record--render hide"></div>
         </div>
         <div id="pixi" class="ui-pixi">
-          <div class="ui-pixi-title">chroma key mixer</div>
           <div class="ui-pixi-labels">
             <span>softness</span>
             <span>amount</span>
           </div>
+          <div class="ui-tooltip ui-tooltip--top"><span>mixer</span></div>
         </div>
         <div class="ui-rooms">
           <div class="ui-room hide ui-room--0"><span></span></div>
