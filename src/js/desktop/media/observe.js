@@ -19,8 +19,6 @@ const ObserveViewer = () => {
     var left = width - w
     var top = height - h
 
-    console.log(left, top)
-
     _window = window.open(
       window.location.href,
       null,
@@ -48,8 +46,6 @@ const ObserveViewer = () => {
   window.onbeforeunload = function(e) {
     stop()
   }
-
-  AppEmitter.on("window:close", () => stop)
 
   return {
     started: !!_window,

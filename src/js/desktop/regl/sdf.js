@@ -1,6 +1,6 @@
-import * as Color from "./color-glsl"
-const Single = regl => {
-  const modelMatrix = [
+import SDFs from "common/sdfs"
+const SDF = regl => {
+    const modelMatrix = [
     1,
     0,
     0,
@@ -27,32 +27,29 @@ const Single = regl => {
   void main () {
     vUv = position;
     vec2 adjusted = 1.0 - 2.0 * position;
-    vec4 pos =  vec4(adjusted,0,1);
-    //gl_Position = vec4(imagePosition, 0, 1);
-    gl_Position =  pos;
-    //gl_Position =  vec4(adjusted,0,1);
+    gl_Position =  vec4(adjusted,0,1);
   }`,
 
     frag: `
 
+    #define PI 3.14159265359;
+    #define TAU 6.28318530718;
+
       precision lowp float;
-      uniform int flipX;
-      uniform sampler2D texture;
-
-        ${Color.uniform}
-
       varying vec2 vUv;
 
-        ${Color.glsl}
-
-
+      ${SDFs}
 
       void main () {
         vec2 uv = vUv;
-        uv.x *= float(flipX);
-        vec3 color = texture2D(texture, uv).rgb;
-        color = changeSaturation(color, uSaturation);
-        gl_FragColor = vec4(color,1);
+        vec2 st = uv;
+        float color = 0.;
+        color += stroke(circleSDF(st), 0.7, 0.2);
+        if(color == 0. ){
+          discard;
+        }else{
+          gl_FragColor = vec4(vec3(color),1);
+        }
       }`,
     attributes: {
       position: [
@@ -71,12 +68,9 @@ const Single = regl => {
     },
     uniforms: {
       view: regl.context("view"),
-      model: modelMatrix,
+      model:modelMatrix,
       projection: regl.context("projection"),
-      flipX: regl.prop("flipX"),
-      uSaturation: regl.prop("uSaturation"),
-      texture: regl.prop("texture"),
     },
   })
 }
-export default Single
+export default SDF

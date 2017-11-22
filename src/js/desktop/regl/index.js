@@ -9,6 +9,7 @@ import { FAR_Z } from "desktop/regl/constants"
 import ReglGeometryActions from "desktop/regl/regl-geometry-actions"
 import ReglGeometry from "desktop/regl/regl-geometry"
 import ReglMeshGeometry from "desktop/regl/regl-mesh-geometry"
+import SDFDraw from "desktop/regl/sdf"
 import SingleDraw from "desktop/regl/single"
 import MultiDraw from "desktop/regl/multi"
 
@@ -22,6 +23,7 @@ const REGL = (canvas, assets) => {
 
   const singleDraw = SingleDraw(regl)
   const multiDraw = MultiDraw(regl)
+  const sdfDraw = SDFDraw(regl)
 
   const reglGeometry = ReglGeometry(regl)
   const reglMeshGeometry = ReglMeshGeometry(regl)
@@ -142,28 +144,9 @@ const REGL = (canvas, assets) => {
           uSaturation: 1, //GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
+        sdfDraw()
         //  ReglGeometryActions.update()
         reglMeshGeometry.draw({ texture: textures.mobile })
-
-        //const lightM = mat4.create()
-        /*reglGeometry.drawLight({
-          color: [0, 1, 0],
-          translation: mat4.translate(lightM, lightM, [
-            _x,
-            0, //GUI.deviceMotion.y,
-            _z, //GUI.deviceMotion.z + 2,
-          ]),
-        })*/
-        /*geo.forEach(({ color, position }) => {
-          const tr = mat4.create()
-          const d = 4
-          mat4.translate(tr, tr, [
-            (position.x * 2 - 1) * d,
-            (position.y * 2 - 1) * -1,
-            -d,
-          ])
-          reglGeometry.drawSphere({ color, translation: tr })
-        })*/
       })
     }
   }

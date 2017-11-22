@@ -38,7 +38,9 @@ const Footer = footerEl => {
 
   let _recordingFinal = false
   const microEl = footerEl.querySelector(".ui-record--micro")
+  const frameEl = footerEl.querySelector(".ui-record--frame")
   const renderEl = footerEl.querySelector(".ui-record--render")
+
   microEl.addEventListener("click", () => {
     if (_recordingFinal) return
     if (!Gui.recordProgress) {
@@ -47,6 +49,17 @@ const Footer = footerEl => {
     } else {
       microEl.classList.add("active")
     }
+  })
+
+  frameEl.addEventListener("click", () => {
+    if (!Gui.recording) {
+      AppEmitter.emit("record:frame:start")
+      frameEl.classList.add("active")
+    } else {
+      AppEmitter.emit("record:frame:stop")
+      frameEl.classList.remove("active")
+    }
+    Gui.recording = !Gui.recording
   })
 
   renderEl.addEventListener("click", () => {

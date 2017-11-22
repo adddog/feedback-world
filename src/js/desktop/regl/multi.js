@@ -59,8 +59,6 @@ const Multi = regl => {
 
 
     gl_FragColor = vec4(mix(color, texture2D(keyVideo,uv).rgb, ff),1);
-    //gl_FragColor = vec4(vec3(ff),1);
-    //gl_FragColor = vec4(texture2D(keyColors, vec2(uv.x, uv.y)).rgb,1);
   }`,
 
     attributes: {

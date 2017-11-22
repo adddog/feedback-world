@@ -332,6 +332,7 @@ const Desktop = (webrtc, state, emitter) => {
 
   const stopRemoteDesktopStream = () => {
     remoteDesktopVideo.isReady = false
+    observeViewer.stop()
     if (remoteDesktopVideo.targetKey === "keyVideo") {
       onVideoStopped(remoteDesktopVideo.el)
     }
@@ -906,16 +907,6 @@ const Desktop = (webrtc, state, emitter) => {
   //DEV
   Gui.recordFinalStart = recordFinalStart
   Gui.recordFinalStop = recordFinalStop
-  Gui.startWebcam = () => {}
-  Gui.stopWebcam = () => {
-    stopKeyVideo()
-    webcam.stop(keyVideo.el)
-  }
-  Gui.instagram = () => {
-    /*instagram
-      .load(setVideoToKey)
-      .then(videoEl => setVideoToKey(videoEl))*/
-  }
 
   //*************
   // LISTRENES
@@ -971,6 +962,10 @@ const Desktop = (webrtc, state, emitter) => {
       geoInteraction.getGeometry(),
       geoInteraction.modelMatrix
     )
+  })
+
+  AppEmitter.on("record:frame:start",()=>{
+
   })
 
   AppEmitter.on("desktop:communcation", str =>
