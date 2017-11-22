@@ -18,15 +18,16 @@ const AUTH_SERVICE = (() => {
         null,
         "height=700,width=600,status=yes,toolbar=no,menubar=no,location=no"
       )
-
+      const searchCode = process.env.NODE_ENV === 'development' ? "success?" : "code?="
       let _i = setInterval(() => {
         if(newWindow){
           if (newWindow.location) {
             let url = newWindow.location.href || newWindow.location
-            let success = url.indexOf("code") > -1
+            let success = url.indexOf(searchCode) > -1
             if (success) {
               clearInterval(_i)
-              let _str = url.split("code?")[1]
+              let _str = url.split(searchCode)[1]
+              console.log(_str);
               const parsedHash = queryString.parse(_str)
               newWindow.close()
               newWindow = null
