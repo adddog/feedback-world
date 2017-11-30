@@ -1,6 +1,6 @@
 import { FAR_Z, Z_SPEED, Z_AMP, Y_AMP } from "./constants"
-import Gui from "../../common/gui"
-import AppEmitter from "../../common/emitter"
+import Gui from "common/gui"
+import AppEmitter from "common/emitter"
 import * as Color from './color-glsl'
 import { inverse,rotationMatrix } from "./glsl-utils"
 import mat4 from "gl-mat4"

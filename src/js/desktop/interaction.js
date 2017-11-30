@@ -194,6 +194,9 @@ const DesktopInteraction = (webrtc, sourceEl) => {
     window.removeEventListener("keyup", onKeyUp)
   }
 
+  window.addEventListener("focus", () => AppEmitter.emit("window:focus"))
+  window.addEventListener("blur", () => AppEmitter.emit("window:blur"))
+
 
   return {
     setOnFileDropped,

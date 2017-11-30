@@ -1,10 +1,10 @@
 import Regl from "regl"
 import mat4 from "gl-mat4"
 import { vec3 } from "gl-matrix"
-import { find, map, isEmpty, compact } from "lodash"
+import { find, map, isEmpty, compact, noop } from "lodash"
 import AppEmitter from "common/emitter"
 import GUI from "common/gui"
-import { WIDTH, HEIGHT, logError } from "common/constants"
+import { WIDTH, HEIGHT, FPS, logError } from "common/constants"
 import { FAR_Z } from "desktop/regl/constants"
 import ReglGeometryActions from "desktop/regl/regl-geometry-actions"
 import ReglGeometry from "desktop/regl/regl-geometry"
@@ -13,7 +13,7 @@ import SDFDraw from "desktop/regl/sdf"
 import SingleDraw from "desktop/regl/single"
 import MultiDraw from "desktop/regl/multi"
 
-const REGL = (canvas, assets) => {
+const REGL = (canvas, options) => {
   if (!Detector.isDesktop) return
 
   const regl = Regl({
@@ -101,6 +101,22 @@ const REGL = (canvas, assets) => {
     )
   }
 
+  let _sequencer = { update: noop }
+  window.Sequencer.start(
+    regl,
+    ({visual, state, Tone, music}) => {
+      var stream_dest = Tone.context.createMediaStreamDestination()
+      Tone.Master.output.output._gainNode.connect(stream_dest)
+      _sequencer = visual
+      options.onSequenerLoaded(stream_dest.stream)
+    },
+    "assets/audio.json",
+    canvas.parentNode,
+    {
+      fps: FPS,
+    }
+  )
+
   function drawKey(assets) {
     if (updateTextures(assets)) {
       setUniforms()
@@ -118,7 +134,9 @@ const REGL = (canvas, assets) => {
           slope: GUI.slope,
           tolerance: GUI.tolerance,
         })
+        sdfDraw()
         reglMeshGeometry.draw({ texture: textures.mobile })
+        _sequencer.update()
         //ReglGeometryActions.update()
       })
     }
@@ -145,8 +163,9 @@ const REGL = (canvas, assets) => {
           flipX: assets.flipX ? -1 : 1,
         })
         sdfDraw()
+        _sequencer.update()
         //  ReglGeometryActions.update()
-        reglMeshGeometry.draw({ texture: textures.mobile })
+        //reglMeshGeometry.draw({ texture: textures.mobile })
       })
     }
   }
@@ -171,7 +190,8 @@ const REGL = (canvas, assets) => {
         depth: true,
         stencil: false,
       })
-      reglMeshGeometry.draw()
+      //reglMeshGeometry.draw()
+      _sequencer.update()
     })
   }
 

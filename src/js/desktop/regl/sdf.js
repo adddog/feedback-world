@@ -36,6 +36,7 @@ const SDF = regl => {
     #define TAU 6.28318530718;
 
       precision lowp float;
+      uniform float aspect;
       varying vec2 vUv;
 
       ${SDFs}
@@ -43,6 +44,8 @@ const SDF = regl => {
       void main () {
         vec2 uv = vUv;
         vec2 st = uv;
+        st.x*=aspect;
+        st.x-= max((aspect-1.)/2.,0.);
         float color = 0.;
         color += stroke(circleSDF(st), 0.7, 0.2);
         if(color == 0. ){
@@ -69,6 +72,8 @@ const SDF = regl => {
     uniforms: {
       view: regl.context("view"),
       model:modelMatrix,
+      aspect: ({ viewportHeight, viewportWidth }) =>
+        viewportWidth / viewportHeight,
       projection: regl.context("projection"),
     },
   })

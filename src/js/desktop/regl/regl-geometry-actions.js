@@ -18,6 +18,7 @@ const ReglGeometryActions = (() => {
   }
 
   function add(geo, type, props) {
+    // From an image element
     const modelMatrix = mat4.create([0, 0, 0])
     mat4.translate(modelMatrix, modelMatrix, [
       (props.position.x * 2 - 1) * FAR_Z / 2,

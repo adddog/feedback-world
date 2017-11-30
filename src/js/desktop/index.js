@@ -147,7 +147,11 @@ const Desktop = (webrtc, state, emitter) => {
 
   const keyCtx = canvasKey.getContext("2d")
 
-  const regl = Regl(canvasEl)
+  const regl = Regl(canvasEl, {
+    onSequenerLoaded: (stream) => {
+      webrtc.webrtc.localStreams[0].addTrack(stream.getAudioTracks()[0])
+    },
+  })
   const interaction = DesktopInteraction(webrtc, canvasEl)
   interaction.setOnFileDropped(urlBlob => {
     const video = document.createElement("video")
@@ -700,7 +704,6 @@ const Desktop = (webrtc, state, emitter) => {
 
   webrtc.on("videoAdded", function(video, peer) {
     video.setAttribute("crossorigin", "anonymous")
-    video.setAttribute("muted", true)
     video.style.display = "none"
 
     const foundPeer = findPeer(peerIds.values(), peer.id)
@@ -739,6 +742,9 @@ const Desktop = (webrtc, state, emitter) => {
         setPairedMobileReady(videoEl)
       }*/
       connectToOtherDesktop(peer, peer.id)
+      console.log(peer.stream);
+      console.log(peer.stream.getAudioTracks());
+      console.log(peer.stream.getVideoTracks());
       //toggleMediaStream(true)
       setTimeout(() => {
         setRemoteDesktopStream(peer.videoEl)
@@ -964,9 +970,7 @@ const Desktop = (webrtc, state, emitter) => {
     )
   })
 
-  AppEmitter.on("record:frame:start",()=>{
-
-  })
+  AppEmitter.on("record:frame:start", () => {})
 
   AppEmitter.on("desktop:communcation", str =>
     send("local:desktop:message", str)
@@ -978,6 +982,11 @@ const Desktop = (webrtc, state, emitter) => {
         ? observeViewer.addStream(remoteDesktopPeer.peer.stream)
         : null
   )
+
+  if(!IS_DEV){
+    AppEmitter.on("window:focus", ()=> Gui.rendering = true)
+    AppEmitter.on("window:blur", ()=> Gui.rendering = false)
+  }
 
   Gui.on("disconnect", v => {
     if (v) {
@@ -1002,6 +1011,8 @@ const Desktop = (webrtc, state, emitter) => {
     })
   Gui.on("tolerance", v => updatePeersOfGL())
   Gui.on("slope", v => updatePeersOfGL())
+
+
 
   addListeners()
   createCanvasStream()
