@@ -1,4 +1,4 @@
-var Recorder = (stream, options) => {
+var Recorder = (stream, options = {type: "audio/webm"}) => {
   var chunks = []
   var count = 0
   let _cb
@@ -29,10 +29,10 @@ var Recorder = (stream, options) => {
     var blob = new Blob(chunks, {
       type: `${options.type}`,
     })
-    var videoElement = document.createElement("audio")
+    /*var videoElement = document.createElement("audio")
     videoElement.src = URL.createObjectURL(blob)
     document.body.appendChild(videoElement)
-    videoElement.play()
+    videoElement.play()*/
     chunks = []
 
     _cb(blob)

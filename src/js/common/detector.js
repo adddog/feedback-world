@@ -20,11 +20,11 @@ Detector.isIOS7 = !!(ua.match(/OS 7(_\d)+ like Mac OS X/i));
 Detector.isIOS8 = !!(ua.match(/OS 8(_\d)+ like Mac OS X/i));
 Detector.isIOS9 = !!(ua.match(/OS 9(_\d)+ like Mac OS X/i));
 Detector.isIOS11 = !!(ua.match(/OS 11(_\d)+ like Mac OS X/i));
+Detector.isIOS12 = !!(ua.match(/OS 12(_\d)+ like Mac OS X/i));
 Detector.IOSVersion = (() => {
   if (/iP(hone|od|ad)/.test(navigator.platform)) {
     // supports iOS 2.0 and later: <http://bit.ly/TJjs1V>
     var v = (navigator.appVersion).match(/OS (\d+)_(\d+)_?(\d+)?/);
-    console.log(v);
     return parseInt(v[1], 10); // [parseInt(v[1], 10), parseInt(v[2], 10), parseInt(v[3] || 0, 10)];
   } else {
     return false;

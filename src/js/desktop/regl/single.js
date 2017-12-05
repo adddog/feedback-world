@@ -22,15 +22,11 @@ const Single = regl => {
     vert: `
   precision lowp float;
   attribute vec2 position;
-  uniform mat4 projection, view, model;
   varying vec2 vUv;
   void main () {
     vUv = position;
     vec2 adjusted = 1.0 - 2.0 * position;
-    vec4 pos =  vec4(adjusted,0,1);
-    //gl_Position = vec4(imagePosition, 0, 1);
-    gl_Position =  pos;
-    //gl_Position =  vec4(adjusted,0,1);
+    gl_Position =  vec4(adjusted,0,1);
   }`,
 
     frag: `
@@ -70,9 +66,6 @@ const Single = regl => {
       enable: false,
     },
     uniforms: {
-      view: regl.context("view"),
-      model: modelMatrix,
-      projection: regl.context("projection"),
       flipX: regl.prop("flipX"),
       uSaturation: regl.prop("uSaturation"),
       texture: regl.prop("texture"),

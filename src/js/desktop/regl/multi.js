@@ -8,8 +8,7 @@ const Multi = regl => {
   void main () {
     vUv = position;
     vec2 adjusted = 1.0 - 2.0 * position;
-    vec2 imagePosition = adjusted;
-    gl_Position = vec4(imagePosition, 0, 1);
+    gl_Position = vec4(adjusted, 0, 1);
   }`,
 
     frag: `

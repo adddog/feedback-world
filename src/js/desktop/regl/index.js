@@ -73,6 +73,7 @@ const REGL = (canvas, options) => {
   }
 
   const EYE = [0, 0, 2]
+  const viewMatrix = mat4.lookAt([], EYE, [0, 0, 0], [0, 1, 0])
   const setupCamera = regl({
     context: {
       projection: ({ viewportWidth, viewportHeight }) => {
@@ -88,7 +89,7 @@ const REGL = (canvas, options) => {
       deviceAcceleration: () => deviceAcceleration,
       eyeMatrix: () => eyeMatrix,
 
-      view: mat4.lookAt([], EYE, [0, 0, 0], [0, 1, 0]),
+      view: viewMatrix,
     },
   })
 
@@ -101,13 +102,19 @@ const REGL = (canvas, options) => {
     )
   }
 
-  let _sequencer = { update: noop }
-  window.Sequencer.start(
+  const clearRegl = ()=>(regl.clear({
+        color: [0.1, 0.1, 0.1, 1],
+        depth: true,
+        stencil: false,
+      }))
+
+  let sequencerEngine = { update: noop }
+  window.DesktopSequencer.start(
     regl,
-    ({visual, state, Tone, music}) => {
+    ({ engine, state, Tone, music }) => {
       var stream_dest = Tone.context.createMediaStreamDestination()
       Tone.Master.output.output._gainNode.connect(stream_dest)
-      _sequencer = visual
+      sequencerEngine = engine
       options.onSequenerLoaded(stream_dest.stream)
     },
     "assets/audio.json",
@@ -120,12 +127,14 @@ const REGL = (canvas, options) => {
   function drawKey(assets) {
     if (updateTextures(assets)) {
       setUniforms()
+
+      regl.clear({
+        color: [0.1, 0.1, 0.1, 1],
+        depth: true,
+        stencil: false,
+      })
+
       setupCamera(() => {
-        regl.clear({
-          color: [0, 0, 0, 1],
-          depth: true,
-          stencil: false,
-        })
         multiDraw({
           texture: textures.mobile,
           keyVideo: textures.keyVideo,
@@ -134,9 +143,14 @@ const REGL = (canvas, options) => {
           slope: GUI.slope,
           tolerance: GUI.tolerance,
         })
-        sdfDraw()
-        reglMeshGeometry.draw({ texture: textures.mobile })
-        _sequencer.update()
+        /*singleDraw({
+          texture: textures.mobile,
+          uSaturation: 1, //GUI.uSaturation,
+          flipX: assets.flipX ? -1 : 1,
+        })*/
+        //sdfDraw()
+        //reglMeshGeometry.draw({ texture: textures.mobile })
+        sequencerEngine.update()
         //ReglGeometryActions.update()
       })
     }
@@ -150,20 +164,21 @@ const REGL = (canvas, options) => {
 
   function drawSingle(assets) {
     if (updateTextures(assets)) {
+
       setUniforms()
+
+
+      clearRegl()
+
       setupCamera(() => {
-        regl.clear({
-          color: [0, 0, 0, 1],
-          depth: true,
-          stencil: false,
-        })
         singleDraw({
           texture: textures.mobile,
           uSaturation: 1, //GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
         sdfDraw()
-        _sequencer.update()
+
+        sequencerEngine.update()
         //  ReglGeometryActions.update()
         //reglMeshGeometry.draw({ texture: textures.mobile })
       })
@@ -191,7 +206,7 @@ const REGL = (canvas, options) => {
         stencil: false,
       })
       //reglMeshGeometry.draw()
-      _sequencer.update()
+      sequencerEngine.update()
     })
   }
 

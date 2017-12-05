@@ -102,11 +102,12 @@
         "webworkify": "^1.5.0"
     },
     "scripts": {
-        "prestart": "npm run process:images",
+        "prestart": "npm run process:images && npm run copy:audio",
         "start": "NODE_ENV=development ejs-cli src/index.ejs > index.html && concurrently \"NODE_ENV=development budo index.js:bundle.js --host 0.0.0.0 --ssl -C sslcerts/local_cert.pem -K sslcerts/local_key.pem --cors --live --serve bundle.js -- -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] -t envify -t glslify\" \"postcss src/postcss/index.sss -o main.css -m -w\"",
         "start:stage": "NODE_ENV=stage ejs-cli src/index.ejs > index.html && NODE_ENV=stage concurrently \"budo index.js:bundle.js --host 0.0.0.0 --ssl -C sslcerts/local_cert.pem -K sslcerts/local_key.pem --cors --live --serve bundle.js -- -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] -t envify\" \"postcss src/postcss/index.sss -o main.css -m -w\"",
         "build:stage": "concurrently \"npm run process:images\" \"browserify index.js -t [ envify --NODE_ENV stage ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
         "build": "concurrently \"npm run process:images\" \"browserify index.js -t [ envify --NODE_ENV production ] -t babelify --presets [ es2015 stage-0 stage-1 stage-2 ] | uglifyjs > bundle.min.js \" \"postcss src/postcss/index.sss -o main.css && cssnano < main.css > main.min.css && NODE_ENV=production ejs-cli src/index.ejs > index.html\" ",
+        "copy:audio": "chmod +x bin/copy_audio.sh && ./bin/copy_audio.sh",
         "process:images": "chmod +x bin/compress_images.sh && ./bin/compress_images.sh"
     },
     "false": {}
