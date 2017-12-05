@@ -13,3 +13,6 @@ package-lock.json
 *.pem
 
 /docs
+
+assets/*.js
+assets/*.css

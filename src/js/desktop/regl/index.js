@@ -18,6 +18,7 @@ const REGL = (canvas, options) => {
 
   const regl = Regl({
     canvas: canvas,
+    extensions: ["angle_instanced_arrays"],
     attributes: { stencil: true, preserveDrawingBuffer: true },
   })
 
@@ -102,11 +103,12 @@ const REGL = (canvas, options) => {
     )
   }
 
-  const clearRegl = ()=>(regl.clear({
-        color: [0.1, 0.1, 0.1, 1],
-        depth: true,
-        stencil: false,
-      }))
+  const clearRegl = () =>
+    regl.clear({
+      color: [0.1, 0.1, 0.1, 1],
+      depth: true,
+      stencil: false,
+    })
 
   let sequencerEngine = { update: noop }
   window.DesktopSequencer.start(
@@ -164,9 +166,7 @@ const REGL = (canvas, options) => {
 
   function drawSingle(assets) {
     if (updateTextures(assets)) {
-
       setUniforms()
-
 
       clearRegl()
 
