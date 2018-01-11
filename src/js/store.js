@@ -64,18 +64,14 @@ const WebRTC = (store, emitter) => {
           audio: store.useWebcam ? !Detector.isDesktop : false,
         },
         receiveMedia: {
-          offerToReceiveAudio: Detector.isDesktop,
-          offerToReceiveVideo: Detector.isDesktop,
+          offerToReceiveAudio: true,
+          offerToReceiveVideo: true,
         },
-        offerToReceiveAudio: Detector.isDesktop,
-        offerToReceiveVideo: Detector.isDesktop,
+        offerToReceiveAudio: true,
+        offerToReceiveVideo: true,
       },
       { mirror: false }
     )
-
-    console.log("***");
-    console.log(webrtc.config.nick);
-    console.log("***");
 
     const desktop = Desktop(webrtc, store, emitter)
     const mobile = Mobile(webrtc, store, emitter)
@@ -120,6 +116,7 @@ const WebRTC = (store, emitter) => {
           console.log(resp)
           console.log("---------")
           if (resp.canJoin) {
+            Gui.roomDetails = resp
             console.log("Gui.connected", Gui.connect)
             if (Gui.connect) {
               disconnect()

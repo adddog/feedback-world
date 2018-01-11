@@ -15,12 +15,12 @@ module.exports = ({ store }, emit, emitter) => {
   const headerHTML = data => html`
     <div class="ui-header-items">
       <h1><span>in room</span> ${data.id}</h1>
-        <div class="ui-medias">
+        ${IS_MOBILE ? html`<div class="ui-medias">
           <div data-type="observe" class="ui-media ui-media--observe"></div>
           <div data-type="insta" class="ui-media ui-media--insta"></div>
           <div data-type="webcam" class="ui-media ui-media--webcam"></div>
           <div class="ui-tooltip ui-tooltip--bottom"><span>visual media</span></div>
-        </div>
+        </div>` : null}
     </div>`
 
   const appMessagesHTML = data =>

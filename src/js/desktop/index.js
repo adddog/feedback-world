@@ -3,17 +3,17 @@ import { mat4 } from "gl-matrix"
 import QS from "query-string"
 import sono from "sono"
 import Socket from "common/socket"
-import Regl from "desktop/regl"
-import GeometryInteraction from "desktop/regl/geometry-interaction"
-import DesktopInteraction from "desktop/interaction"
+import Regl from "threed"
+import GeometryInteraction from "threed/geometry-interaction"
+import DesktopInteraction from "ui/interaction"
 import AppEmitter from "common/emitter"
-import MSRecorder from "desktop/recording/mediaStreamRecorder"
+import MSRecorder from "recording/mediaStreamRecorder"
 import Instagram from "desktop/media/instagram"
 import Webcam from "desktop/media/webcam"
 import ObserveViewer from "desktop/media/observe"
-import Record from "desktop/recording/record"
-import Recorder from "desktop/recording/soundRecorder"
-import Sound from "desktop/recording/sound"
+import Record from "recording/record"
+import Recorder from "recording/soundRecorder"
+import Sound from "recording/sound"
 import Gui from "common/gui"
 import Server from "common/server"
 import {
@@ -25,7 +25,6 @@ import {
   flatten,
   compact,
 } from "lodash"
-import { cover, contain } from "intrinsic-scale"
 import loop from "raf-loop"
 import {
   IS_MOBILE,
@@ -36,6 +35,7 @@ import {
   M_SCREEN_SIZE,
   WIDTH,
   HEIGHT,
+  RENDERING_KEYS,
   KEY_W,
   KEY_H,
   ALPHA_SENS,
@@ -53,6 +53,7 @@ import {
   logInfoB,
   logSuccess,
   postMsg,
+  resizeCanvas,
   createVideoElFromStream,
 } from "common/constants"
 
@@ -93,7 +94,6 @@ const Desktop = (webrtc, state, emitter) => {
     isReady: false,
   }
 
-  const RENDERING_KEYS = ["mainVideo", "keyVideo"]
   const renderSettings = {
     single: false,
     multi: false,
@@ -774,23 +774,9 @@ const Desktop = (webrtc, state, emitter) => {
     tryStarting(peers.values())
   })
 
-  const resizeCanvas = (w = WIDTH, h = HEIGHT) => {
-    let { width, height, x, y } = cover(
-      window.innerWidth,
-      window.innerHeight,
-      w,
-      h
-    )
-    const scale = Math.max(width / w, height / h)
-    canvasEl.style.transform = `scale3d(${scale},${scale},1) translate3d(0, 0, 0)`
-    canvasEl.style.webkitTransform = `scale3d(${scale},${scale},1) translate3d(0,0, 0)`
-    canvasEl.style.top = `${y / 2}px`
-    canvasEl.style.left = `${x / 2}px`
-  }
-
   window.addEventListener("resize", () => resizeCanvas(WIDTH, HEIGHT))
 
-  resizeCanvas(WIDTH, HEIGHT)
+  resizeCanvas(canvasEl, WIDTH, HEIGHT)
 
   //*************
   // RECORDING

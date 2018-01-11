@@ -1,4 +1,5 @@
 import QS from "query-string"
+import { cover, contain } from "intrinsic-scale"
 import Gui from "common/gui"
 import Detector from "common/detector"
 import colors from "nice-color-palettes"
@@ -36,7 +37,9 @@ export const videoSettings = {
   height: { max: HEIGHT },
   frameRate: { max: FPS },
 }
-
+export const RENDERING_KEYS = ["mainVideo", "keyVideo"]
+const parseQs = QS.parse(window.location.search)
+export const USE_AUDIO = !!parseQs.audio
 export const COLOR_P = process.env.NODE_ENV === "production"
 export const IS_PROD = process.env.NODE_ENV === "production"
 export const IS_STAGE = process.env.NODE_ENV === "stage"
@@ -107,4 +110,18 @@ export const createVideoElFromStream = (
   v.srcObject = stream
   v.classList.add("canvas")
   return v
+}
+
+export const resizeCanvas = (el, w = WIDTH, h = HEIGHT) => {
+  let { width, height, x, y } = cover(
+    window.innerWidth,
+    window.innerHeight,
+    w,
+    h
+  )
+  const scale = Math.max(width / w, height / h)
+  el.style.transform = `scale3d(${scale},${scale},1) translate3d(0, 0, 0)`
+  el.style.webkitTransform = `scale3d(${scale},${scale},1) translate3d(0,0, 0)`
+  el.style.top = `${y / 2}px`
+  el.style.left = `${x / 2}px`
 }

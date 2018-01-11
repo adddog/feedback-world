@@ -1,5 +1,6 @@
 import Hammer from "hammerjs"
 import { cover, contain } from "intrinsic-scale"
+import AppEmitter from "common/emitter"
 import { WIDTH, HEIGHT } from "common/constants"
 
 const MobileInteraction = webrtc => {
@@ -20,7 +21,7 @@ const MobileInteraction = webrtc => {
       HEIGHT
     )
 
-    videoEl.style.display = "block"
+    //videoEl.style.display = "block"
 
     canvasOff.width = width
     canvasOff.height = height
@@ -30,7 +31,7 @@ const MobileInteraction = webrtc => {
     canvasOff.style.display = "block"
 
     setTimeout(() => {
-      videoEl.style.display = "none"
+      //videoEl.style.display = "none"
       canvasOff.style.display = "none"
     }, 2000)
 
@@ -41,6 +42,14 @@ const MobileInteraction = webrtc => {
       frame.data[e.center.x * e.center.y * 4 + 1],
       frame.data[e.center.x * e.center.y * 4 + 2],
     ]
+
+    AppEmitter.emit("addKeyColor", {
+      color,
+      position: {
+        x: e.center.x / window.innerWidth,
+        y: e.center.y / window.innerHeight,
+      },
+    })
 
     webrtc.sendToAll("local:mobile:addKeyColor", color)
   })

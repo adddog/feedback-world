@@ -5,20 +5,18 @@ import { find, map, isEmpty, compact, noop } from "lodash"
 import AppEmitter from "common/emitter"
 import GUI from "common/gui"
 import { WIDTH, HEIGHT, FPS, logError } from "common/constants"
-import { FAR_Z } from "desktop/regl/constants"
-import ReglGeometryActions from "desktop/regl/regl-geometry-actions"
-import ReglGeometry from "desktop/regl/regl-geometry"
-import ReglMeshGeometry from "desktop/regl/regl-mesh-geometry"
-import SDFDraw from "desktop/regl/sdf"
-import SingleDraw from "desktop/regl/single"
-import MultiDraw from "desktop/regl/multi"
+import { FAR_Z,USE_AUDIO } from "threed/constants"
+import ReglGeometryActions from "threed/regl-geometry-actions"
+import ReglGeometry from "threed/regl-geometry"
+import ReglMeshGeometry from "threed/regl-mesh-geometry"
+import SDFDraw from "threed/sdf"
+import SingleDraw from "threed/single"
+import MultiDraw from "threed/multi"
 
 const REGL = (canvas, options) => {
-  if (!Detector.isDesktop) return
-
   const regl = Regl({
     canvas: canvas,
-    extensions: ["angle_instanced_arrays"],
+    //extensions: ["angle_instanced_arrays"],
     attributes: { stencil: true, preserveDrawingBuffer: true },
   })
 
@@ -111,20 +109,22 @@ const REGL = (canvas, options) => {
     })
 
   let sequencerEngine = { update: noop }
-  window.DesktopSequencer.start(
-    regl,
-    ({ engine, state, Tone, music }) => {
-      var stream_dest = Tone.context.createMediaStreamDestination()
-      Tone.Master.output.output._gainNode.connect(stream_dest)
-      sequencerEngine = engine
-      options.onSequenerLoaded(stream_dest.stream)
-    },
-    "assets/audio.json",
-    canvas.parentNode,
-    {
-      fps: FPS,
-    }
-  )
+  if(USE_AUDIO){
+    window.DesktopSequencer.start(
+      regl,
+      ({ engine, state, Tone, music }) => {
+        var stream_dest = Tone.context.createMediaStreamDestination()
+        Tone.Master.output.output._gainNode.connect(stream_dest)
+        sequencerEngine = engine
+        options.onSequenerLoaded(stream_dest.stream)
+      },
+      "assets/audio.json",
+      canvas.parentNode,
+      {
+        fps: FPS,
+      }
+    )
+  }
 
   function drawKey(assets) {
     if (updateTextures(assets)) {
@@ -176,7 +176,8 @@ const REGL = (canvas, options) => {
           uSaturation: 1, //GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
-        sdfDraw()
+
+        //sdfDraw()
 
         sequencerEngine.update()
         //  ReglGeometryActions.update()
