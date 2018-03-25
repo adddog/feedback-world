@@ -144,7 +144,9 @@ const REGL = (canvas, assets) => {
           uSaturation: 1, //GUI.uSaturation,
           flipX: assets.flipX ? -1 : 1,
         })
-        sdfDraw()
+
+        //sdfDraw()
+
         //  ReglGeometryActions.update()
         reglMeshGeometry.draw({ texture: textures.mobile })
       })
