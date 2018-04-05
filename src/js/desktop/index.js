@@ -8,6 +8,7 @@ import GeometryInteraction from "desktop/regl/geometry-interaction"
 import DesktopInteraction from "desktop/interaction"
 import AppEmitter from "common/emitter"
 import MSRecorder from "desktop/recording/mediaStreamRecorder"
+import Facebook from "desktop/media/facebook"
 import Instagram from "desktop/media/instagram"
 import Webcam from "desktop/media/webcam"
 import ObserveViewer from "desktop/media/observe"
@@ -160,6 +161,7 @@ const Desktop = (webrtc, state, emitter) => {
   const webcam = Webcam(webrtc)
   const observeViewer = ObserveViewer()
   const instagram = Instagram(videoEl)
+  const facebook = Facebook(videoEl)
   const sound = Sound()
   const record = Record()
   const geoInteraction = new GeometryInteraction(window)

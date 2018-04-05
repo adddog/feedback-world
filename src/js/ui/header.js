@@ -25,6 +25,10 @@ const Header = headerEl => {
         _isObserving = !_isObserving
         break
       }
+      case "facebook": {
+        AppEmitter.emit("facebook:auth")
+        break
+      }
       case "insta": {
         AppEmitter.emit("insta:start")
         break

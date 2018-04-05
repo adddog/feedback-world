@@ -61,7 +61,7 @@ const WebRTC = (store, emitter) => {
                     facingMode: "environment",
                   }
             : false,
-          audio: store.useWebcam ? !Detector.isDesktop : false,
+          audio: store.useWebcam ? !Detector.isDesktop : store.useMicro,
         },
         receiveMedia: {
           offerToReceiveAudio: Detector.isDesktop,
@@ -161,10 +161,13 @@ const WebRTC = (store, emitter) => {
 
 function store(state, emitter) {
   const noCamera = QS.parse(location.search).noc
+  const useCamera = QS.parse(location.search).cam
+  const useMicro = QS.parse(location.search).mic
   state.store = observable({
     randomRoomId: QS.parse(location.search).room,
 
-    useWebcam: Detector.isMobile ? (noCamera ? false : true) : false,
+    useWebcam: Detector.isMobile ? (noCamera ? false : true) : useCamera,
+    useMicro:useMicro,
 
     room: {
       created: false,

@@ -74,6 +74,23 @@ oReq.send(blob);
     })
   }
 
+  function facebook() {
+    return AuthService.auth(
+      `${SERVER_URL}${PATH}login/facebook`
+    ).then(d => {
+      console.log(d);
+      /*return fetchJsonp(
+        `${DEFAULT_ORIGIN}/${DEFAULT_VERSION}/${DEFAULT_ENDPOINT}/${d
+          .id[0]}/media/recent?access_token=${d.accessToken}&count=${DEFAULT_SIZE}`,
+        {
+          jsonpCallbackFunction: "instagramCallback",
+        }
+      ).then(response => {
+        return response.json()
+      })*/
+    })
+  }
+
   function roomId() {
     return fetch(`${SERVER_URL}${PATH}room`, {}).then(response =>
       response.json()
@@ -84,6 +101,7 @@ oReq.send(blob);
     roomId,
     upload,
     insta,
+    facebook,
   }
 })()
 
