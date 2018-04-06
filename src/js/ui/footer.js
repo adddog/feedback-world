@@ -41,16 +41,6 @@ const Footer = footerEl => {
   const frameEl = footerEl.querySelector(".ui-record--frame")
   const renderEl = footerEl.querySelector(".ui-record--render")
 
-  microEl.addEventListener("click", () => {
-    if (_recordingFinal) return
-    if (!Gui.recordProgress) {
-      AppEmitter.emit("record:audio:start")
-      microEl.classList.remove("active")
-    } else {
-      microEl.classList.add("active")
-    }
-  })
-
   frameEl.addEventListener("click", () => {
     if (!Gui.recording) {
       AppEmitter.emit("record:frame:start")

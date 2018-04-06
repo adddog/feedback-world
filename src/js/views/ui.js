@@ -40,9 +40,9 @@ module.exports = ({ store }, emit, emitter) => {
       <div class="ui-footer">
         <div class="ui-record-c">
           <div class="ui-tooltip ui-tooltip--bottom">visual media</div>
-          <div class="ui-record ui-record--micro"></div>
-          <div class="ui-record ui-record--frame"></div>
-          <div class="ui-record ui-record--render hide"></div>
+          <div class="ui-record ui-record--micro hide"></div>
+          <div class="ui-record ui-record--frame hide"></div>
+          <div class="ui-record ui-record--render"></div>
         </div>
         <div id="pixi" class="ui-pixi">
           <div class="ui-pixi-labels">

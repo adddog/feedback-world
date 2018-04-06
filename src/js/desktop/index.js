@@ -881,6 +881,7 @@ const Desktop = (webrtc, state, emitter) => {
     sound.recordMasterStart();
 
     setTimeout(() => {
+      logSuccess(`recordFinalStart recording!`)
       Gui.recording = true;
     }, RECORD_FRAMES_DELAY);
 

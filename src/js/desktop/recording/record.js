@@ -154,6 +154,8 @@ const Record = () => {
     canvasKey.width = WIDTH
     canvasKey.height = HEIGHT
 
+    console.log(`Total frames: ${frames.length}`);
+
     let _i = 0
     while (_i < frames.length) {
       flipVertically(frames[_i], WIDTH, HEIGHT)
@@ -167,10 +169,7 @@ const Record = () => {
     frames.length = 0
 
     const WhammyFPS = Math.floor(FPS / 2)
-    const finalDuration = Math.min(
-      _duration,
-      webms.length / WhammyFPS
-    ).toFixed(2)
+    const finalDuration = webms.length / WhammyFPS
     _duration = finalDuration
     console.log("finalDuration", _duration)
     const blob = window.Whammy.fromImageArray(webms, WhammyFPS)
