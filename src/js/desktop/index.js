@@ -791,6 +791,7 @@ const Desktop = (webrtc, state, emitter) => {
   });
 
   webrtc.on("videoAdded", function(video, peer) {
+    video.setAttribute("autoplay", true);
     video.setAttribute("crossorigin", "anonymous");
     video.setAttribute("muted", true);
     video.style.display = "none";
