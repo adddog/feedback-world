@@ -374,10 +374,10 @@ const Desktop = (webrtc, state, emitter) => {
     remoteDesktopVideo.el = el;
     remoteDesktopVideo.isReady = true;
     // TODO
-    const targetKey = pairedMobile.id ? "keyVideo" : "mainVideo";
-    if (webcam.started) {
-      stopWebcam();
-    }
+    // const targetKey = pairedMobile.id ? "keyVideo" : "mainVideo";
+    // if (webcam.started) {
+    //   stopWebcam();
+    // }
     remoteDesktopVideo.targetKey = addRenderingMedia(
       remoteDesktopVideo.el,
       targetKey,
